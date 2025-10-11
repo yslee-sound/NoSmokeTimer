@@ -20,12 +20,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.ui.draw.blur
 import androidx.core.content.edit
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
@@ -49,6 +51,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
+import kotlin.math.max
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import android.graphics.Bitmap
 
 class StartActivity : BaseActivity() {
     private lateinit var appUpdateManager: AppUpdateManager
@@ -277,12 +284,37 @@ fun StartScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                val iconSize = (maxWidth * 0.35f).coerceIn(120.dp, 200.dp) * 1.5f
-                Image(
-                    painter = painterResource(id = R.drawable.splash_app_icon),
-                    contentDescription = "금연 아이콘",
-                    modifier = Modifier.size(iconSize).blur(3.dp)
-                )
+                val iconSize = (maxWidth * 0.35f).coerceIn(120.dp, 200.dp) * 1.2f
+                // 스플래시 인셋(1/6)을 픽셀 그리드에 반올림 정렬
+                val density = LocalDensity.current
+                val insetPadding = with(density) {
+                    val iconPx = iconSize.toPx()
+                    val padPxRounded = (iconPx / 6f).roundToInt()
+                    padPxRounded.toDp()
+                }
+                Box(modifier = Modifier.size(iconSize), contentAlignment = Alignment.Center) {
+                    // 벡터를 안전하게 비트맵으로 래스터라이즈 후 최근접 샘플링 적용
+                    val contentSizeDp = iconSize - insetPadding * 2
+                    val (contentW, contentH) = with(density) {
+                        val w = max(1, contentSizeDp.toPx().roundToInt())
+                        val h = w // 정사각 아이콘
+                        w to h
+                    }
+                    val drawable = remember {
+                        ResourcesCompat.getDrawable(context.resources, R.drawable.ic_launcher_foreground, context.theme)
+                    }
+                    val bitmap = remember(contentW, contentH, drawable) {
+                        drawable?.toBitmap(contentW, contentH, Bitmap.Config.ARGB_8888)?.asImageBitmap()
+                    }
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap,
+                            contentDescription = "금연 아이콘",
+                            modifier = Modifier.fillMaxSize().padding(insetPadding),
+                            filterQuality = FilterQuality.None
+                        )
+                    }
+                }
             }
         },
         bottomButton = {

@@ -2,6 +2,7 @@ package com.sweetapps.nosmoketimer.core.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -232,7 +233,7 @@ abstract class BaseActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(paddingValues)
                                 .then(insetModifier)
-                                .blur(radius = blurRadius.dp)
+                                .blur(radius = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) blurRadius.dp else 0.dp)
                         ) { content() }
                     }
                 }
