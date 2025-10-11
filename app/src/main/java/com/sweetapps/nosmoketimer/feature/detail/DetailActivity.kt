@@ -188,7 +188,7 @@ fun DetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // Run 화면과 동일: 단색 surface 배경
+                .background(MaterialTheme.colorScheme.background) // 전역 배경 적용
         ) {
             Column(
                 modifier = Modifier

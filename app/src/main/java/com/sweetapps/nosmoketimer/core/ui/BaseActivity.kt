@@ -99,8 +99,8 @@ abstract class BaseActivity : ComponentActivity() {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet(
-                        modifier = Modifier.fillMaxWidth(0.8f).background(Color.White),
-                        drawerContainerColor = Color.Transparent,
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        drawerContainerColor = MaterialTheme.colorScheme.surface,
                         drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
                     ) {
                         DrawerMenu(
@@ -138,6 +138,7 @@ abstract class BaseActivity : ComponentActivity() {
             ) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    containerColor = Color.Transparent,
                     topBar = {
                         Surface(
                             modifier = Modifier
@@ -145,7 +146,7 @@ abstract class BaseActivity : ComponentActivity() {
                                 .then(if (applySystemBars) Modifier.windowInsetsPadding(WindowInsets.statusBars) else Modifier),
                             shadowElevation = 0.dp,
                             tonalElevation = 0.dp,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.surface
                         ) {
                             Column {
                                 TopAppBar(
@@ -215,7 +216,7 @@ abstract class BaseActivity : ComponentActivity() {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color.White)
+                                .background(MaterialTheme.colorScheme.background)
                         )
                         val insetModifier = if (applyBottomInsets) {
                             Modifier.windowInsetsPadding(

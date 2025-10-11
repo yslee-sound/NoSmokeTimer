@@ -36,7 +36,7 @@ class AddRecordActivity : ComponentActivity() {
         setContent {
             // 앱은 라이트 모드 고정 정책: 다크 모드 진입 방지
             AlcoholicTimerTheme(darkTheme = false) {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     AddRecordScreen(
                         onSave = { record ->
                             val success = saveRecord(record)
@@ -182,7 +182,7 @@ private fun AddRecordScreen(
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) { innerPadding ->
         Column(
@@ -190,7 +190,7 @@ private fun AddRecordScreen(
                 .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(MaterialTheme.colorScheme.surface)
+                .background(Color.Transparent)
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(Modifier.height(8.dp))

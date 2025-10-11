@@ -50,7 +50,9 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = SurfaceVariantLight,
     onSurfaceVariant = OnSurfaceVariant,
     error = ErrorLight,
-    onError = Color.White
+    onError = Color.White,
+    // 앱 전역 바탕색: 연회색
+    background = BackgroundLight
 )
 
 @Composable
@@ -77,7 +79,7 @@ fun AlcoholicTimerTheme(
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
 
-            // 상태바/내비바를 화면과 동일한 화이트로 지정해 경계선 시각 차이를 제거
+            // 상태바/내비바는 흰색으로 유지하여 상단 AppBar(흰색)와 자연스럽게 연결
             val statusBarColor = Color.White
             val navBarColor = Color.White
 

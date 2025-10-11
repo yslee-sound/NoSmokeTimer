@@ -97,6 +97,7 @@ gradlew.bat clean :app:bundleRelease
 - UX 흐름: [docs/UX_FLOW.md](./docs/UX_FLOW.md)
 - 패키지 구조 리팩터링 계획: [docs/REFACTORING_PACKAGE_STRUCTURE.md](./docs/REFACTORING_PACKAGE_STRUCTURE.md)
 - 아이콘 디자인 가이드: [docs/ICON_DESIGN.md](./docs/ICON_DESIGN.md)
+- 앱 아이콘·내보내기 가이드: [docs/APP_ICON_AND_EXPORT_GUIDE.md](./docs/APP_ICON_AND_EXPORT_GUIDE.md)
 - 디자인 토큰: [docs/DESIGN_TOKENS.md](./docs/DESIGN_TOKENS.md)
 - 출시 준비 & 배포 체크리스트: [docs/APP_RELEASE_PLAN.md](./docs/APP_RELEASE_PLAN.md)
 - MVP 초간단 릴리스 체크리스트 (1인 개발용): [docs/MVP_RELEASE_CHECKLIST.md](./docs/MVP_RELEASE_CHECKLIST.md)
@@ -132,9 +133,9 @@ pwsh ./scripts/archive_release.ps1 -VersionName 1.0.1 -VersionCode 20251006
 | 항목 | 값 |
 |------|----|
 | Inset | 18dp (Adaptive 캔버스 108dp 기준) |
-| Foreground Scale | 1.43 (과밀 완화) |
+| Foreground Scale | 추가 스케일 없음 (18dp 인셋으로 안전영역 정합) |
 | Monochrome | 단일 path, 테마 아이콘 대비 확보 |
-| Colors | FG #C6283A / BG #FFFFFF |
+| Colors | FG #2571FF / BG #FFFFFF |
 | Round Icon | 별도 리소스 제거 (Adaptive 단일 유지) |
 
 자세한 변경 이력·QA 체크리스트는 [ICON_DESIGN.md](./docs/ICON_DESIGN.md) 참고.
