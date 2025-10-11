@@ -43,6 +43,7 @@ import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import com.sweetapps.nosmoketimer.core.util.FormatUtils
 import com.sweetapps.nosmoketimer.feature.start.StartActivity
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
+import com.sweetapps.nosmoketimer.R
 
 class QuitActivity : BaseActivity() {
     override fun getScreenTitle(): String = getString(R.string.quit_title)

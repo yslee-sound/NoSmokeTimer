@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sweetapps.nosmoketimer.R
 import com.sweetapps.nosmoketimer.core.data.RecordsDataLoader
 import com.sweetapps.nosmoketimer.core.model.SobrietyRecord
 import androidx.compose.ui.res.stringResource

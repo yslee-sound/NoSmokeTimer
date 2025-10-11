@@ -28,6 +28,7 @@ import com.sweetapps.nosmoketimer.core.ui.BaseActivity
 import android.content.ClipData
 import android.content.ClipboardManager
 import androidx.core.content.ContextCompat
+import com.sweetapps.nosmoketimer.R
 
 class AboutLicensesActivity : BaseActivity() {
     override fun getScreenTitle(): String = getString(R.string.about_open_license_notice)

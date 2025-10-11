@@ -44,6 +44,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.compose.material3.SnackbarResult
+import com.sweetapps.nosmoketimer.R
 
 class StartActivity : BaseActivity() {
     private lateinit var appUpdateManager: AppUpdateManager

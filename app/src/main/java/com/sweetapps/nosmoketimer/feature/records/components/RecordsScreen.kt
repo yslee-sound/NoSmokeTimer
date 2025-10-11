@@ -43,6 +43,7 @@ import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
+import com.sweetapps.nosmoketimer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

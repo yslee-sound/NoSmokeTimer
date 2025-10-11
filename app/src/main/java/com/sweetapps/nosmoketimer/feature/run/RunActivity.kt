@@ -42,6 +42,7 @@ import com.sweetapps.nosmoketimer.feature.start.StartActivity
 import com.sweetapps.nosmoketimer.feature.detail.DetailActivity
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import androidx.compose.foundation.BorderStroke
+import com.sweetapps.nosmoketimer.R
 
 class RunActivity : BaseActivity() {
 

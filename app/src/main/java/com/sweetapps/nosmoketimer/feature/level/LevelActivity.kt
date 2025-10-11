@@ -35,6 +35,7 @@ import com.sweetapps.nosmoketimer.core.data.RecordsDataLoader
 import kotlinx.coroutines.delay
 import java.util.Locale
 import androidx.compose.foundation.BorderStroke
+import com.sweetapps.nosmoketimer.R
 
 class LevelActivity : BaseActivity() {
 

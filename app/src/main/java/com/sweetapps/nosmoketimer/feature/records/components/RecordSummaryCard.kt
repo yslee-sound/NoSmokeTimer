@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sweetapps.nosmoketimer.R
 import com.sweetapps.nosmoketimer.core.model.SobrietyRecord
 import com.sweetapps.nosmoketimer.core.ui.AppAlphas
 import com.sweetapps.nosmoketimer.core.ui.AppElevation

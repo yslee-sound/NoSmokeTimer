@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sweetapps.nosmoketimer.R
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import com.sweetapps.nosmoketimer.core.ui.theme.AmberSecondaryLight

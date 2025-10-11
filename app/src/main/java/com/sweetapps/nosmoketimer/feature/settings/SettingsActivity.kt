@@ -25,6 +25,7 @@ import com.sweetapps.nosmoketimer.core.util.Constants
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
+import com.sweetapps.nosmoketimer.R
 
 class SettingsActivity : BaseActivity() {
     override fun getScreenTitle(): String = "설정"

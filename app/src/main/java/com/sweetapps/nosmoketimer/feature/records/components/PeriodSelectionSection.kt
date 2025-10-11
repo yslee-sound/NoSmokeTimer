@@ -14,6 +14,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sweetapps.nosmoketimer.R
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import java.text.SimpleDateFormat
 import java.util.*
