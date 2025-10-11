@@ -19,7 +19,7 @@
 
 타깃 구조(Feature-by-package 권장)
 ```
-com.example.alcoholictimer
+sweetapps.alcoholictimer
 ├─ core
 │  ├─ ui            (BaseActivity, StandardScreen, theme, 재사용 컴포넌트)
 │  ├─ model         (SobrietyRecord)
@@ -65,7 +65,7 @@ com.example.alcoholictimer
 ### 재발 방지
 - 새 공통 코드 반드시 core/* 하위에만 생성
 - Activity 신규 추가 시 feature/<name> 전용 패키지 사용
-- (선택) CI 단계에서 legacy 경로 감지 스크립트 추가 가능 (예: git grep "com.example.alcoholictimer.*Activity" | grep -E "src/main/java/com/example/alcoholictimer/[^c|f]")
+- (선택) CI 단계에서 legacy 경로 감지 스크립트 추가 가능 (예: git grep "sweetapps.alcoholictimer.*Activity" | grep -E "src/main/java/com/example/alcoholictimer/[^c|f]")
 
 ### 참고
 - 추후 multi-module 분리 시 core 모듈 추출 용이 상태
