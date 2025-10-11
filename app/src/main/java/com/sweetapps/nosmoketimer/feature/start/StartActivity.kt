@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,12 +23,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.draw.blur
 import androidx.core.content.edit
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
@@ -45,6 +43,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.compose.material3.SnackbarResult
 import com.sweetapps.nosmoketimer.R
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 class StartActivity : BaseActivity() {
     private lateinit var appUpdateManager: AppUpdateManager
@@ -265,6 +269,20 @@ fun StartScreen() {
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
+            }
+
+            // 카드 아래 중앙 여백을 파란 금연 아이콘으로 채움
+            Spacer(modifier = Modifier.height(16.dp))
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                val iconSize = (maxWidth * 0.35f).coerceIn(120.dp, 200.dp) * 1.5f
+                Image(
+                    painter = painterResource(id = R.drawable.splash_app_icon),
+                    contentDescription = "금연 아이콘",
+                    modifier = Modifier.size(iconSize).blur(3.dp)
+                )
             }
         },
         bottomButton = {

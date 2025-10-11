@@ -15,11 +15,11 @@
 
     <!-- 스플래시 테마(Pre-Android 12 + backport용) -->
     <style name="Theme.NoSmokeTimer.Splash" parent="@android:style/Theme.DeviceDefault.NoActionBar">
-        <!-- 즉시 흰 화면 보장 -->
-        <item name="android:windowBackground">@android:color/white</item>
-        <!-- backport가 읽는 속성들 -->
+        <!-- 즉시 흰 화면 보장 + 중앙에 새 아이콘 표시 -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <!-- backport가 읽는 속성들 (호환 사용 시 적용) -->
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_inset</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_app_icon</item>
         <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
     </style>
