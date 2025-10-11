@@ -51,7 +51,7 @@ fun SettingsScreen() {
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SettingsCard(title = "음주 비용", titleColor = colorResource(id = R.color.color_indicator_money)) {
+        SettingsCard(title = "금연 비용", titleColor = colorResource(id = R.color.color_indicator_money)) {
             SettingsOptionGroup(
                 selectedOption = selectedCost,
                 options = listOf("저", "중", "고"),
@@ -59,7 +59,7 @@ fun SettingsScreen() {
                 onOptionSelected = { newValue -> selectedCost = newValue; sharedPref.edit { putString("selected_cost", newValue) } }
             )
         }
-        SettingsCard(title = "음주 빈도", titleColor = colorResource(id = R.color.color_progress_primary)) {
+        SettingsCard(title = "금연 빈도", titleColor = colorResource(id = R.color.color_progress_primary)) {
             SettingsOptionGroup(
                 selectedOption = selectedFrequency,
                 options = listOf("주 1회 이하", "주 2~3회", "주 4회 이상"),
@@ -67,7 +67,7 @@ fun SettingsScreen() {
                 onOptionSelected = { newValue -> selectedFrequency = newValue; sharedPref.edit { putString("selected_frequency", newValue) } }
             )
         }
-        SettingsCard(title = "음주 시간", titleColor = colorResource(id = R.color.color_indicator_hours)) {
+        SettingsCard(title = "금연 시간", titleColor = colorResource(id = R.color.color_indicator_hours)) {
             SettingsOptionGroup(
                 selectedOption = selectedDuration,
                 options = listOf("짧음", "보통", "김"),
