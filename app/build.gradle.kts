@@ -36,17 +36,17 @@ android {
     }
 
     signingConfigs {
-        // 환경변수 기반 release 서명 (키 미설정 시 경고만 출력 -> 로컬 debug 빌드 영향 X)
+        // 환경변수 기반 release 서명 (Provider API 사용, 구성 캐시 친화적)
         create("release") {
-            val ksPath = System.getenv("KEYSTORE_PATH")
+            val ksPath = providers.environmentVariable("KEYSTORE_PATH").orNull
             if (!ksPath.isNullOrBlank()) {
                 storeFile = file(ksPath)
             } else {
                 println("[WARN] Release keystore not configured - will build unsigned bundle. Set KEYSTORE_PATH before production release.")
             }
-            storePassword = System.getenv("KEYSTORE_STORE_PW") ?: ""
-            keyAlias = System.getenv("KEY_ALIAS") ?: ""
-            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            storePassword = providers.environmentVariable("KEYSTORE_STORE_PW").orNull ?: ""
+            keyAlias = providers.environmentVariable("KEY_ALIAS").orNull ?: ""
+            keyPassword = providers.environmentVariable("KEY_PASSWORD").orNull ?: ""
         }
     }
 
@@ -60,7 +60,10 @@ android {
                 "proguard-rules.pro"
             )
             // 서명 강제: 실제 release 관련 태스크(assembleRelease/bundleRelease 등) 요청 시에만 검사
-            val hasKeystore = !System.getenv("KEYSTORE_PATH").isNullOrBlank()
+            val hasKeystoreProvider = providers.environmentVariable("KEYSTORE_PATH")
+                .map { it.isNotBlank() }
+                .orElse(false)
+            val hasKeystore = hasKeystoreProvider.get()
             if (isReleaseTaskRequested && !hasKeystore) {
                 throw GradleException("Unsigned release build blocked. Set KEYSTORE_PATH, KEYSTORE_STORE_PW, KEY_ALIAS, KEY_PASSWORD env vars before running a release build.")
             }
@@ -71,10 +74,10 @@ android {
         // debug 설정 변경 없음
     }
 
-    // Java/Kotlin 타깃 유지
+    // Java/Kotlin 타깃 17로 상향
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -89,7 +92,9 @@ android {
 }
 
 kotlin {
-    compilerOptions { jvmTarget.set(JvmTarget.JVM_11) }
+    // Kotlin JVM 타깃 + JDK 툴체인을 17로 고정
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    jvmToolchain(17)
 }
 
 dependencies {
@@ -109,7 +114,7 @@ dependencies {
 
     testImplementation(libs.junit)
     // org.json (Android 내장) 를 JVM 유닛 테스트 환경에서 사용하기 위한 의존성
-    testImplementation("org.json:json:20240303")
+    testImplementation(libs.org.json)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -125,10 +130,10 @@ tasks.register("printReleaseSigningEnv") {
     group = "help"
     description = "Prints release signing env vars and keystore file existence"
     doLast {
-        val ksPath = System.getenv("KEYSTORE_PATH")
-        val alias = System.getenv("KEY_ALIAS")
-        val hasStorePw = !System.getenv("KEYSTORE_STORE_PW").isNullOrEmpty()
-        val hasKeyPw = !System.getenv("KEY_PASSWORD").isNullOrEmpty()
+        val ksPath = providers.environmentVariable("KEYSTORE_PATH").orNull
+        val alias = providers.environmentVariable("KEY_ALIAS").orNull
+        val hasStorePw = !providers.environmentVariable("KEYSTORE_STORE_PW").orNull.isNullOrEmpty()
+        val hasKeyPw = !providers.environmentVariable("KEY_PASSWORD").orNull.isNullOrEmpty()
         println("KEYSTORE_PATH=${ksPath ?: "<not set>"}")
         if (!ksPath.isNullOrBlank()) {
             val f = file(ksPath)
