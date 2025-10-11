@@ -45,7 +45,7 @@ abstract class BaseActivity : ComponentActivity() {
     // Ensure declaration before first usage
     private fun getNickname(): String {
         val sharedPref = getSharedPreferences("user_settings", MODE_PRIVATE)
-        return sharedPref.getString("nickname", "알중이1") ?: "알중이1"
+        return sharedPref.getString("nickname", "끽연이1") ?: "끽연이1"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
