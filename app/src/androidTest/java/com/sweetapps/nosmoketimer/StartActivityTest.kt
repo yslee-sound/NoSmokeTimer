@@ -29,7 +29,7 @@ class StartActivityTest {
     fun firstLaunch_showsTargetPeriodSetupCard() {
         // 핵심 텍스트 요소들이 화면에 표시되는지 확인
         composeRule.onNodeWithText("목표 기간 설정").assertIsDisplayed()
-        composeRule.onNodeWithText("금주할 목표 기간을 입력해주세요").assertIsDisplayed()
+        composeRule.onNodeWithText("금연할 목표 기간을 입력해주세요").assertIsDisplayed()
         // 기본값 30이 노출되는지(입력 필드)
         composeRule.onNodeWithText("30").assertIsDisplayed()
     }

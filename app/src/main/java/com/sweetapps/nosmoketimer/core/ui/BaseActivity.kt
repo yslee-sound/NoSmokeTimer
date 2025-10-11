@@ -64,7 +64,7 @@ abstract class BaseActivity : ComponentActivity() {
     // Returns the drawer menu title that matches current screen, or null if none
     private fun currentDrawerSelection(): String? = when (this) {
         is RunActivity, is StartActivity,
-        is com.sweetapps.nosmoketimer.feature.run.QuitActivity -> "금주"
+        is com.sweetapps.nosmoketimer.feature.run.QuitActivity -> "금연"
         is com.sweetapps.nosmoketimer.feature.records.RecordsActivity,
         is com.sweetapps.nosmoketimer.feature.records.AllRecordsActivity,
         is com.sweetapps.nosmoketimer.feature.detail.DetailActivity -> "기록"
@@ -241,7 +241,7 @@ abstract class BaseActivity : ComponentActivity() {
 
     private fun handleMenuSelection(menuItem: String) {
         when (menuItem) {
-            "금주" -> {
+            "금연" -> {
                 val sharedPref = getSharedPreferences("user_settings", MODE_PRIVATE)
                 val startTime = sharedPref.getLong("start_time", 0L)
                 if (startTime > 0) {
@@ -286,7 +286,7 @@ fun DrawerMenu(
     onItemSelected: (String) -> Unit
 ) {
     val menuItems = listOf(
-        "금주" to Icons.Filled.PlayArrow,
+        "금연" to Icons.Filled.PlayArrow,
         "기록" to Icons.AutoMirrored.Filled.List,
         "레벨" to Icons.Filled.Star
     )

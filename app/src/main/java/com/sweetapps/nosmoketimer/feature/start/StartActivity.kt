@@ -73,7 +73,7 @@ class StartActivity : BaseActivity() {
         }
     }
 
-    override fun getScreenTitle(): String = "금주 설정"
+    override fun getScreenTitle(): String = "금연 설정"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -258,7 +258,7 @@ fun StartScreen() {
                         )
                     }
                     Text(
-                        text = "금주할 목표 기간을 입력해주세요",
+                        text = "금연할 목표 기간을 입력해주세요",
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorResource(id = R.color.color_hint_gray),
                         textAlign = TextAlign.Center,
