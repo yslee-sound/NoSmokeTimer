@@ -252,8 +252,8 @@ private fun LevelListCard(currentLevel: LevelDefinitions.LevelInfo, currentDays:
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD),
-        border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+        elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.ZERO),
+        border = null // 회색 테두리 제거
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Text(
@@ -286,7 +286,8 @@ private fun LevelItem(
     isAchieved: Boolean,
     isNext: Boolean
 ) {
-    val itemElevation = if (isCurrent) AppElevation.ZERO else AppElevation.CARD
+    // 모든 상태에서 그림자 제거
+    val itemElevation = AppElevation.ZERO
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -300,7 +301,7 @@ private fun LevelItem(
         border = when {
             isCurrent -> BorderStroke(1.5.dp, level.color)
             isAchieved -> BorderStroke(1.dp, level.color.copy(alpha = 0.6f))
-            else -> BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+            else -> null // 회색 테두리 제거
         },
         elevation = CardDefaults.cardElevation(defaultElevation = itemElevation)
     ) {

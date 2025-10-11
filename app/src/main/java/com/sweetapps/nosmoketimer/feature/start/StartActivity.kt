@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -284,12 +283,13 @@ fun StartScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                val iconSize = (maxWidth * 0.35f).coerceIn(120.dp, 200.dp) * 1.2f
+                // 기존 대비 2.0배 확대
+                val iconSize = (maxWidth * 0.4f).coerceIn(120.dp, 320.dp) * 2.0f
                 // 스플래시 인셋(1/6)을 픽셀 그리드에 반올림 정렬
                 val density = LocalDensity.current
                 val insetPadding = with(density) {
                     val iconPx = iconSize.toPx()
-                    val padPxRounded = (iconPx / 6f).roundToInt()
+                    val padPxRounded = (iconPx / 8f).roundToInt()
                     padPxRounded.toDp()
                 }
                 Box(modifier = Modifier.size(iconSize), contentAlignment = Alignment.Center) {
@@ -311,7 +311,8 @@ fun StartScreen() {
                             bitmap = bitmap,
                             contentDescription = "금연 아이콘",
                             modifier = Modifier.fillMaxSize().padding(insetPadding),
-                            filterQuality = FilterQuality.None
+                            filterQuality = FilterQuality.None,
+                            alpha = 0.3f // 더 흐리게
                         )
                     }
                 }
