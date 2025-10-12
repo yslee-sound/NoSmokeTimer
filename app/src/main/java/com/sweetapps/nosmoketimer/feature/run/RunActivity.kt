@@ -123,8 +123,9 @@ private fun RunScreen() {
         else -> 10.0 / 60.0
     }
     val weeks = elapsedDaysFloat / 7.0
+    val overheadHours = Constants.DEFAULT_SMOKE_OVERHEAD_MINUTES / 60.0
     val savedMoney = remember(weeks, freqVal, costVal) { weeks * freqVal * costVal }
-    val savedHours = remember(weeks, freqVal, drinkHoursVal) { weeks * freqVal * (drinkHoursVal + Constants.DEFAULT_HANGOVER_HOURS) }
+    val savedHours = remember(weeks, freqVal, drinkHoursVal) { weeks * freqVal * (drinkHoursVal + overheadHours) }
     val lifeGainDays = remember(elapsedDaysFloat) { elapsedDaysFloat / 30.0 }
 
     val totalTargetMillis = (targetDays * Constants.DAY_IN_MILLIS).toLong()

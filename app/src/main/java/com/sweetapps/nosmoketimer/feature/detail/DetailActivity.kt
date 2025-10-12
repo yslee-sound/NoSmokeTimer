@@ -183,11 +183,11 @@ fun DetailScreen(
         else -> 10.0 / 60.0
     }
 
-    val hangoverHoursVal = 5.0
+    val overheadHours = Constants.DEFAULT_SMOKE_OVERHEAD_MINUTES / 60.0
 
     val exactWeeks = totalHours / (24.0 * 7.0)
     val savedMoney = (exactWeeks * freqVal * costVal).roundToInt()
-    val savedHoursExact = (exactWeeks * freqVal * (drinkHoursVal + hangoverHoursVal))
+    val savedHoursExact = (exactWeeks * freqVal * (drinkHoursVal + overheadHours))
 
     val achievementRate = ((totalDays / targetDays) * 100.0).let { rate -> if (rate > 100) 100.0 else rate }
     val lifeExpectancyIncrease = totalDays / 30.0

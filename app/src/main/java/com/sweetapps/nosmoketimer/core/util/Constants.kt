@@ -42,7 +42,8 @@ object Constants {
 
     const val RESULT_SCREEN_DELAY = 2000
     const val DEFAULT_VALUE = 2000
-    const val DEFAULT_HANGOVER_HOURS = 5
+    const val DEFAULT_HANGOVER_HOURS = 5 // deprecated: 음주 맥락 전용. 금연에서는 사용하지 않음.
+    const val DEFAULT_SMOKE_OVERHEAD_MINUTES = 5 // 금연 오버헤드(정리/이동/준비) 분 단위
 
     val LEVEL_TIME_UNIT_MILLIS: Long get() = DAY_IN_MILLIS
     val LEVEL_TIME_UNIT_TEXT: String get() = "일"
