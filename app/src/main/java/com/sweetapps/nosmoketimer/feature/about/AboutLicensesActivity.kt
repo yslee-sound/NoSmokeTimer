@@ -43,7 +43,7 @@ class AboutLicensesActivity : BaseActivity() {
 private fun AboutLicensesScreen() {
     val context = LocalContext.current
     val ccByUrl = "https://creativecommons.org/licenses/by/4.0/"
-    val sourceUrl = "https://www.figma.com/files/team/1555631729927297611/resources/community/file/1149764730850773390?fuid=1555631727933133748"
+    val sourceUrl = "https://www.figma.com/community/file/1227184301417272677/free-wayfinding-vector-icons-guidance-icon-set"
 
     Column(
         modifier = Modifier
