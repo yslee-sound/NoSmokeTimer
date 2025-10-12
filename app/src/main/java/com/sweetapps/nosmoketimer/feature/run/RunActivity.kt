@@ -113,7 +113,15 @@ private fun RunScreen() {
         "주 4회 이상" -> 5.0
         else -> 1.5
     }
-    val drinkHoursVal = when (selectedDuration) { "짧음" -> 2; "보통" -> 4; "김" -> 6; else -> 4 }
+    // 새 금연 시간 매핑: 5/10/20분 -> 시간 단위(Double)
+    val drinkHoursVal = when (selectedDuration) {
+        "짧음" -> 5.0 / 60.0
+        "보통" -> 10.0 / 60.0
+        "길게" -> 20.0 / 60.0
+        // 구 라벨(후방 호환)
+        "김", "긴" -> 20.0 / 60.0
+        else -> 10.0 / 60.0
+    }
     val weeks = elapsedDaysFloat / 7.0
     val savedMoney = remember(weeks, freqVal, costVal) { weeks * freqVal * costVal }
     val savedHours = remember(weeks, freqVal, drinkHoursVal) { weeks * freqVal * (drinkHoursVal + Constants.DEFAULT_HANGOVER_HOURS) }

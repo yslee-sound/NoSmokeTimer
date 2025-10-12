@@ -153,28 +153,37 @@ fun DetailScreen(
 
     val (selectedCost, selectedFrequency, selectedDuration) = Constants.getUserSettings(context)
 
-    val costVal = when(selectedCost) {
-        "저" -> 10000
-        "중" -> 40000
-        "고" -> 70000
-        else -> 40000
+    // 새 비용 매핑 (원)
+    val costVal = when (selectedCost) {
+        "저" -> 3000
+        "중" -> 6000
+        "고" -> 12000
+        else -> 6000
     }
 
-    val freqVal = when(selectedFrequency) {
+    // 새 빈도 매핑 (회/주) + 구 라벨 후방 호환
+    val freqVal = when (selectedFrequency) {
+        "주 1~2회" -> 1.5
+        "주 3~4회" -> 3.5
+        "매일" -> 7.0
+        // 구 라벨
         "주 1회 이하" -> 1.0
         "주 2~3회" -> 2.5
         "주 4회 이상" -> 5.0
-        else -> 2.5
+        else -> 1.5
     }
 
-    val drinkHoursVal = when(selectedDuration) {
-        "짧음" -> 2
-        "보통" -> 4
-        "김" -> 6
-        else -> 4
+    // 새 시간 매핑: 5/10/20분 -> 시간 단위(Double) + 구 라벨 후방 호환
+    val drinkHoursVal = when (selectedDuration) {
+        "짧음" -> 5.0 / 60.0
+        "보통" -> 10.0 / 60.0
+        "길게" -> 20.0 / 60.0
+        // 구 라벨
+        "김", "긴" -> 20.0 / 60.0
+        else -> 10.0 / 60.0
     }
 
-    val hangoverHoursVal = 5
+    val hangoverHoursVal = 5.0
 
     val exactWeeks = totalHours / (24.0 * 7.0)
     val savedMoney = (exactWeeks * freqVal * costVal).roundToInt()

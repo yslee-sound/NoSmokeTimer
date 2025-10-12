@@ -24,7 +24,7 @@ object Constants {
 
     const val DEFAULT_COST = "중" // 기본값 ‘중’은 최초 실행(또는 데이터 초기화)에서만 적용됩니다.
     const val DEFAULT_FREQUENCY = "주 1~2회"
-    const val DEFAULT_DURATION = "짧음"
+    const val DEFAULT_DURATION = "보통"
 
     const val TEST_MODE_REAL = 0
     const val TEST_MODE_MINUTE = 1
@@ -91,7 +91,7 @@ object Constants {
         val sharedPref = context.getSharedPreferences(USER_SETTINGS_PREFS, Context.MODE_PRIVATE)
         val cost = sharedPref.getString(PREF_SELECTED_COST, DEFAULT_COST) ?: DEFAULT_COST
         var frequency = sharedPref.getString(PREF_SELECTED_FREQUENCY, DEFAULT_FREQUENCY) ?: DEFAULT_FREQUENCY
-        val duration = sharedPref.getString(PREF_SELECTED_DURATION, DEFAULT_DURATION) ?: DEFAULT_DURATION
+        var duration = sharedPref.getString(PREF_SELECTED_DURATION, DEFAULT_DURATION) ?: DEFAULT_DURATION
 
         // 빈도 라벨 마이그레이션: 과거 값 -> 새로운 옵션명으로 치환
         val migratedFrequency = when (frequency) {
@@ -103,6 +103,16 @@ object Constants {
         if (migratedFrequency != frequency) {
             frequency = migratedFrequency
             sharedPref.edit { putString(PREF_SELECTED_FREQUENCY, migratedFrequency) }
+        }
+
+        // 시간 라벨 마이그레이션: 과거 '김' 등을 새 옵션 '길게'로 치환
+        val migratedDuration = when (duration) {
+            "김", "긴" -> "길게"
+            else -> duration
+        }
+        if (migratedDuration != duration) {
+            duration = migratedDuration
+            sharedPref.edit { putString(PREF_SELECTED_DURATION, migratedDuration) }
         }
 
         return Triple(cost, frequency, duration)

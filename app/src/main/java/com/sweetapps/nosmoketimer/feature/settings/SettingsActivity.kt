@@ -74,8 +74,8 @@ fun SettingsScreen() {
         SettingsCard(title = "금연 시간", titleColor = colorResource(id = R.color.color_indicator_hours)) {
             SettingsOptionGroup(
                 selectedOption = selectedDuration,
-                options = listOf("짧음", "보통", "김"),
-                labels = listOf("짧음 (2시간 이하)", "보통 (3~5시간)", "김 (6시간 이상)"),
+                options = listOf("짧음", "보통", "길게"),
+                labels = listOf("짧음 (10분 이하)", "보통 (10분 정도)", "길게 (10분 이상)"),
                 onOptionSelected = { newValue -> selectedDuration = newValue; sharedPref.edit { putString("selected_duration", newValue) } }
             )
         }
