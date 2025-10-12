@@ -102,7 +102,17 @@ private fun RunScreen() {
 
     val (selectedCost, selectedFrequency, selectedDuration) = Constants.getUserSettings(context)
     val costVal = when (selectedCost) { "저" -> 3000; "중" -> 6000; "고" -> 12000; else -> 6000 }
-    val freqVal = when (selectedFrequency) { "주 1회 이하" -> 1.0; "주 2~3회" -> 2.5; "주 4회 이상" -> 5.0; else -> 2.5 }
+    val freqVal = when (selectedFrequency) {
+        // 새 라벨
+        "주 1~2회" -> 1.5
+        "주 3~4회" -> 3.5
+        "매일" -> 7.0
+        // 구 라벨(후방 호환)
+        "주 1회 이하" -> 1.0
+        "주 2~3회" -> 2.5
+        "주 4회 이상" -> 5.0
+        else -> 1.5
+    }
     val drinkHoursVal = when (selectedDuration) { "짧음" -> 2; "보통" -> 4; "김" -> 6; else -> 4 }
     val weeks = elapsedDaysFloat / 7.0
     val savedMoney = remember(weeks, freqVal, costVal) { weeks * freqVal * costVal }

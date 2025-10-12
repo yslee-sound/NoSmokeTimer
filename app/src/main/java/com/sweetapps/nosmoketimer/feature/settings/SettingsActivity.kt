@@ -66,8 +66,8 @@ fun SettingsScreen() {
         SettingsCard(title = "금연 빈도", titleColor = colorResource(id = R.color.color_progress_primary)) {
             SettingsOptionGroup(
                 selectedOption = selectedFrequency,
-                options = listOf("주 1회 이하", "주 2~3회", "주 4회 이상"),
-                labels = listOf("주 1회 이하", "주 2~3회", "주 4회 이상"),
+                options = listOf("주 1~2회", "주 3~4회", "매일"),
+                labels = listOf("주 1~2회", "주 3~4회", "매일"),
                 onOptionSelected = { newValue -> selectedFrequency = newValue; sharedPref.edit { putString("selected_frequency", newValue) } }
             )
         }

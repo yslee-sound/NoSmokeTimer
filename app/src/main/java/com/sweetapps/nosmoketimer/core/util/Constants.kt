@@ -23,7 +23,7 @@ object Constants {
     const val PREF_SETTINGS_INITIALIZED = "settings_initialized"
 
     const val DEFAULT_COST = "중" // 기본값 ‘중’은 최초 실행(또는 데이터 초기화)에서만 적용됩니다.
-    const val DEFAULT_FREQUENCY = "주 1회 이하"
+    const val DEFAULT_FREQUENCY = "주 1~2회"
     const val DEFAULT_DURATION = "짧음"
 
     const val TEST_MODE_REAL = 0
@@ -90,8 +90,21 @@ object Constants {
     fun getUserSettings(context: Context): Triple<String, String, String> {
         val sharedPref = context.getSharedPreferences(USER_SETTINGS_PREFS, Context.MODE_PRIVATE)
         val cost = sharedPref.getString(PREF_SELECTED_COST, DEFAULT_COST) ?: DEFAULT_COST
-        val frequency = sharedPref.getString(PREF_SELECTED_FREQUENCY, DEFAULT_FREQUENCY) ?: DEFAULT_FREQUENCY
+        var frequency = sharedPref.getString(PREF_SELECTED_FREQUENCY, DEFAULT_FREQUENCY) ?: DEFAULT_FREQUENCY
         val duration = sharedPref.getString(PREF_SELECTED_DURATION, DEFAULT_DURATION) ?: DEFAULT_DURATION
+
+        // 빈도 라벨 마이그레이션: 과거 값 -> 새로운 옵션명으로 치환
+        val migratedFrequency = when (frequency) {
+            "주 1회 이하" -> "주 1~2회"
+            "주 2~3회" -> "주 3~4회"
+            "주 4회 이상" -> "매일"
+            else -> frequency
+        }
+        if (migratedFrequency != frequency) {
+            frequency = migratedFrequency
+            sharedPref.edit { putString(PREF_SELECTED_FREQUENCY, migratedFrequency) }
+        }
+
         return Triple(cost, frequency, duration)
     }
 
