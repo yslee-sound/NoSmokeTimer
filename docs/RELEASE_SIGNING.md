@@ -3,20 +3,23 @@
 최소/반복 방지를 위한 릴리즈 서명 운영 요약.
 
 ## 1. 환경 변수 (CI/로컬 동일)
-| 변수 | 용도 |
-|------|------|
-| KEYSTORE_PATH | 업로드 키 JKS 절대 경로 |
-| KEYSTORE_STORE_PW | Keystore 비밀번호 |
-| KEY_ALIAS | alcoholictimeruploadkey |
+| 변수 | 용도                        |
+|------|---------------------------|
+| KEYSTORE_PATH | 업로드 키 JKS 절대 경로           |
+| KEYSTORE_STORE_PW | Keystore 비밀번호             |
+| KEY_ALIAS | nosmoketimer-alias        |
 | KEY_PASSWORD | 키 비밀번호 (store 비번과 동일해도 됨) |
 
 ---
 1.1. Keytool 확인
 PowerShell:
-& "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" -list -v -keystore "G:\secure\alcoholic-timer-upload.jks"
+& "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" -list -v -keystore "G:\secure\NoSmokeTimer\nosmoketimer-key.jks"
 
 1.2. PowerShell:
 ```
+- powershell.exe (관리자 아님) 실행
+& "C:\Program Files\Android\Android Studio\jbr\bin\keytool.exe" -genkeypair -v -keystore "G:\secure\NoSmokeTimer\nosmoketimer-key.jks" -alias nosmoketimer-alias -keyalg RSA -keysize 4096 -sigalg SHA256withRSA -validity 36500
+
 - 제일 먼저 버전 변경할 것
 app > build.gradle.kts
     versionCode = 2025100800 // YYYYMMDDxx
@@ -24,19 +27,31 @@ app > build.gradle.kts
 
 - 드라이브 & 디렉터리 이동
 G:
-cd G:\Workspace\AlcoholicTimer
+cd G:\Workspace\NoSmokeTimer
 (확인)
 Get-ChildItem gradlew.bat
 파일 목록에 gradlew.bat 보이면 OK.
 
 - 서명 환경변수 (네 값으로 넣어, 따옴표 포함)
-$env:KEYSTORE_PATH="G:/secure/AlcoholicTimer_Secure/alcoholic-timer-upload.jks"
+$env:KEYSTORE_PATH="G:/secure/NoSmokeTimer/nosmoketimer-key.jks"
 $env:KEYSTORE_STORE_PW="****"
-$env:KEY_ALIAS="alcoholictimeruploadkey"
+$env:KEY_ALIAS="nosmoketimer-alias"
 $env:KEY_PASSWORD="****"
 
 - 서명 리포트 재확인 (선택이지만 3초)
 .\gradlew.bat :app:signingReport
+
+[중요] gradlew.bat 인식 오류 해결 (PowerShell)
+- 증상: '.\\gradlew.bat' 용어가 인식되지 않습니다 → 현재 폴더에 gradlew.bat가 없음
+- 해결 1) 프로젝트 루트로 이동 후 실행
+  Set-Location G:\Workspace\NoSmokeTimer
+  .\gradlew.bat :app:signingReport
+- 해결 2) 절대 경로로 직접 실행(어디서든 가능)
+  & "G:\Workspace\NoSmokeTimer\gradlew.bat" :app:signingReport
+- 참고) cmd.exe에서는 다음과 같이
+  G:
+  cd \Workspace\NoSmokeTimer
+  gradlew.bat :app:signingReport
 
 - 릴리즈 번들 빌드
 .\gradlew.bat clean :app:bundleRelease
@@ -56,7 +71,7 @@ Could not load the value of field `dslSigningConfig` ... Class 'com.android.buil
 조치 순서(Windows PowerShell):
 ```
 G:
-cd G:\Workspace\AlcoholicTimer
+cd G:\Workspace\NoSmokeTimer
 
 # 1) Gradle 데몬 중지
 .\gradlew.bat --stop

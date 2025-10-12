@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.File
+import java.security.KeyStore
 
 plugins {
     alias(libs.plugins.android.application)
@@ -17,7 +19,7 @@ android {
     namespace = "com.sweetapps.nosmoketimer"
     compileSdk = 36
 
-    val releaseVersionCode = 1
+    val releaseVersionCode = 2025101100
     val releaseVersionName = "1.0.0"
 
     defaultConfig {
@@ -129,6 +131,8 @@ dependencies {
 tasks.register("printReleaseSigningEnv") {
     group = "help"
     description = "Prints release signing env vars and keystore file existence"
+    // 구성 캐시 비호환(진단용 태스크): Project API 직접 호출을 피하고도 안전장치 추가
+    notCompatibleWithConfigurationCache("diagnostic helper task")
     doLast {
         val ksPath = providers.environmentVariable("KEYSTORE_PATH").orNull
         val alias = providers.environmentVariable("KEY_ALIAS").orNull
@@ -136,7 +140,7 @@ tasks.register("printReleaseSigningEnv") {
         val hasKeyPw = !providers.environmentVariable("KEY_PASSWORD").orNull.isNullOrEmpty()
         println("KEYSTORE_PATH=${ksPath ?: "<not set>"}")
         if (!ksPath.isNullOrBlank()) {
-            val f = file(ksPath)
+            val f = File(ksPath)
             println(" - exists=${f.exists()} size=${if (f.exists()) f.length() else 0}")
         }
         println("KEY_ALIAS=${alias ?: "<not set>"}")
@@ -145,5 +149,58 @@ tasks.register("printReleaseSigningEnv") {
     }
 }
 
+// keystore 내용을 직접 로드해서 alias 목록과 타깃 별칭 존재 여부를 출력하는 헬퍼 태스크
+// PKCS12/JKS 모두 시도하여 여는 로직
+fun loadKeystoreSmart(file: File, password: String): KeyStore {
+    val candidates = listOf(KeyStore.getDefaultType(), "JKS", "PKCS12").distinct()
+    val pw = password.toCharArray()
+    for (type in candidates) {
+        try {
+            val ks = KeyStore.getInstance(type)
+            file.inputStream().use { ks.load(it, pw) }
+            println("[checkReleaseKeystore] Opened as type=$type")
+            return ks
+        } catch (_: Exception) {
+            // try next
+        }
+    }
+    throw GradleException("Unable to open keystore with provided password. Check password or store type (JKS/PKCS12).")
+}
+
+tasks.register("checkReleaseKeystore") {
+    group = "help"
+    description = "Loads release keystore and prints alias list; verifies KEY_ALIAS existence"
+    // 구성 캐시 비호환(진단용 태스크)
+    notCompatibleWithConfigurationCache("diagnostic helper task")
+    doLast {
+        val ksPath = providers.environmentVariable("KEYSTORE_PATH").orNull
+        val storePw = providers.environmentVariable("KEYSTORE_STORE_PW").orNull
+        val targetAlias = providers.environmentVariable("KEY_ALIAS").orNull
+        if (ksPath.isNullOrBlank()) {
+            println("[checkReleaseKeystore] KEYSTORE_PATH not set")
+            return@doLast
+        }
+        val f = File(ksPath)
+        if (!f.exists()) {
+            println("[checkReleaseKeystore] Keystore not found at: ${f.absolutePath}")
+            return@doLast
+        }
+        if (storePw.isNullOrEmpty()) {
+            println("[checkReleaseKeystore] KEYSTORE_STORE_PW not set — cannot open keystore")
+            return@doLast
+        }
+        val ks = loadKeystoreSmart(f, storePw)
+        val list = mutableListOf<String>()
+        val e = ks.aliases()
+        while (e.hasMoreElements()) list.add(e.nextElement())
+        println("[checkReleaseKeystore] aliases=${list}")
+        if (!targetAlias.isNullOrBlank()) {
+            println("[checkReleaseKeystore] KEY_ALIAS='${targetAlias}', exists=${ks.containsAlias(targetAlias)}")
+        } else {
+            println("[checkReleaseKeystore] KEY_ALIAS not set")
+        }
+    }
+}
+
 // (단순화) designTokenCheck 커스텀 태스크 제거.
-// 필요 시 별도 스크립트나 독립 Gradle 플러그인/CI 스텝으로 수행 권장.
+// 필요 시 별도 스크립트나 독립 Gradle 플러그인/CI 스텝으로 수행 권장
