@@ -55,7 +55,11 @@ fun SettingsScreen() {
             SettingsOptionGroup(
                 selectedOption = selectedCost,
                 options = listOf("저", "중", "고"),
-                labels = listOf("저 (1만원 이하)", "중 (1~5만원)", "고 (5만원 이상)"),
+                labels = listOf(
+                    "저 (하루 한갑 이하)",
+                    "중 (하루 한갑 정도)",
+                    "고 (하루 한갑 이상)"
+                ),
                 onOptionSelected = { newValue -> selectedCost = newValue; sharedPref.edit { putString("selected_cost", newValue) } }
             )
         }

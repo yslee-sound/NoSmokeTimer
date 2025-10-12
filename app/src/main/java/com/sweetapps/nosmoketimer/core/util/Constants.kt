@@ -22,7 +22,7 @@ object Constants {
     const val PREF_SELECTED_DURATION = "selected_duration"
     const val PREF_SETTINGS_INITIALIZED = "settings_initialized"
 
-    const val DEFAULT_COST = "저"
+    const val DEFAULT_COST = "중" // 기본값 ‘중’은 최초 실행(또는 데이터 초기화)에서만 적용됩니다.
     const val DEFAULT_FREQUENCY = "주 1회 이하"
     const val DEFAULT_DURATION = "짧음"
 

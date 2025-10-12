@@ -101,7 +101,7 @@ private fun RunScreen() {
     val progressTimeTextHM = String.format(Locale.getDefault(), "%02d:%02d", elapsedHours, elapsedMinutes)
 
     val (selectedCost, selectedFrequency, selectedDuration) = Constants.getUserSettings(context)
-    val costVal = when (selectedCost) { "저" -> 10000; "중" -> 40000; "고" -> 70000; else -> 40000 }
+    val costVal = when (selectedCost) { "저" -> 3000; "중" -> 6000; "고" -> 12000; else -> 6000 }
     val freqVal = when (selectedFrequency) { "주 1회 이하" -> 1.0; "주 2~3회" -> 2.5; "주 4회 이상" -> 5.0; else -> 2.5 }
     val drinkHoursVal = when (selectedDuration) { "짧음" -> 2; "보통" -> 4; "김" -> 6; else -> 4 }
     val weeks = elapsedDaysFloat / 7.0
