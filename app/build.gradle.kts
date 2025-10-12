@@ -19,8 +19,8 @@ android {
     namespace = "com.sweetapps.nosmoketimer"
     compileSdk = 36
 
-    val releaseVersionCode = 2025101100
-    val releaseVersionName = "1.0.0"
+    val releaseVersionCode = 2025101200
+    val releaseVersionName = "1.0.1"
 
     defaultConfig {
         applicationId = "com.sweetapps.nosmoketimer"
