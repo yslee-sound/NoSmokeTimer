@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+ Splash theme using SplashScreen attributes on app-based theme -->
-    <style name="Theme.NoSmokeTimer.Splash" parent="Theme.SplashScreen">
+    <!-- Android 12+ Splash theme without circular background -->
+    <style name="Theme.NoSmokeTimer.Splash" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_app_icon_inset</item>
-        <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <!-- Do NOT set android:windowSplashScreenIconBackgroundColor to avoid circular container -->
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
-        <!-- 스플래시 동안도 상단 경계선이 보이지 않도록 -->
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:enforceStatusBarContrast">false</item>

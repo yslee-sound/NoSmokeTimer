@@ -1,9 +1,9 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
+    android:width="288dp"
+    android:height="288dp"
     android:viewportWidth="432"
     android:viewportHeight="432">
-    <!-- v21 compatible foreground vector using the new provided SVG path (filled) -->
+    <!-- 288dp-sized foreground for pre-Android 12 splash, path matches launcher icon -->
     <path
         android:pathData="M213.833 201.222H321.712V275.498H288.105L353.492 340.889L341.382 353L78.5078 90.1105L90.6176 78L213.833 201.222ZM175.997 201.222V218.348H93.1254V258.372H233.144V275.498H76V201.222H175.997ZM356 204.07V272.65H338.875V204.07H356ZM270.979 258.372H304.586V218.348H230.958L270.979 258.372ZM236.01 101.2V89.7702H253.136V101.2C253.136 137.503 282.563 166.932 318.864 166.932V184.058C273.105 184.058 236.01 146.961 236.01 101.2ZM270.299 101.201V89.7702H287.424V101.201C287.424 118.565 301.501 132.642 318.864 132.642H356V181.21H338.875V149.768H318.864C292.042 149.768 270.299 128.024 270.299 101.201Z"
         android:fillColor="@color/icon_launcher_fg"/>

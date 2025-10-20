@@ -83,48 +83,11 @@ class StartActivity : BaseActivity() {
         // In-App Update 초기화
         appUpdateManager = AppUpdateManager(this)
 
-        val isPre31 = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
-        val skipSplash = intent?.getBooleanExtra("skip_splash", false) == true
-
         setContent {
             // 첫 실행 화면에서는 edge-to-edge 비활성화하여 상태바를 OS가 분리 렌더링
             BaseScreen(applyBottomInsets = false, applySystemBars = false) {
                 Box(Modifier.fillMaxSize()) {
                     StartScreenWithUpdate(appUpdateManager)
-
-                    // Pre-31용 Compose 스플래시 오버레이
-                    if (isPre31) {
-                        var showOverlay by remember { mutableStateOf(!skipSplash) }
-                        // 최소 표시시간 800ms 유지
-                        LaunchedEffect(Unit) {
-                            if (!skipSplash) {
-                                delay(800)
-                                showOverlay = false
-                                // overlay 숨김 직후 윈도우 배경 제거 (잔상 방지)
-                                window.setBackgroundDrawable(null)
-                            } else {
-                                // 내부 네비게이션으로 진입 시 즉시 배경 제거
-                                window.setBackgroundDrawable(null)
-                            }
-                        }
-                        AnimatedVisibility(
-                            visible = showOverlay,
-                            enter = fadeIn() + scaleIn(initialScale = 0.95f),
-                            exit = fadeOut() + scaleOut(targetScale = 1.05f)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                // 흰 배경은 windowBackground(splash_screen)로 이미 적용
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                                    contentDescription = "Splash Icon",
-                                    modifier = Modifier.size(240.dp)
-                                )
-                            }
-                        }
-                    }
                 }
             }
         }

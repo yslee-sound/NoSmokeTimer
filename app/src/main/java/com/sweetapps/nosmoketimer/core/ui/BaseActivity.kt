@@ -52,12 +52,12 @@ abstract class BaseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install SplashScreen
         val splashScreen: SplashScreen = installSplashScreen()
+        val start = System.currentTimeMillis()
+        // 모든 버전에서 최소 표시 시간 보장 (AndroidX backport 지원)
+        splashScreen.setKeepOnScreenCondition {
+            System.currentTimeMillis() - start < 800
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val start = System.currentTimeMillis()
-            splashScreen.setKeepOnScreenCondition {
-                // 최소 800ms 유지
-                System.currentTimeMillis() - start < 800
-            }
             splashScreen.setOnExitAnimationListener { provider ->
                 val v = provider.view
                 v.animate()
@@ -69,7 +69,7 @@ abstract class BaseActivity : ComponentActivity() {
                     .start()
             }
         } else {
-            // Pre-31: StartActivity에서 Compose 오버레이로 처리
+            // Pre-31: 애니메이션 리스너는 무시되거나 기본 제거됨
             splashScreen.setOnExitAnimationListener { provider -> provider.remove() }
         }
         super.onCreate(savedInstanceState)

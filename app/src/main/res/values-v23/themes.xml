@@ -5,17 +5,17 @@
         <item name="android:windowFullscreen">false</item>
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <!-- 전환 후 아이콘 잔상 방지: 메인 테마는 흰 배경만 적용 -->
+        <item name="android:windowBackground">@android:color/white</item>
         <!-- 상단 경계선(오버레이) 제거 -->
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="Theme.NoSmokeTimer.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowBackground">@android:color/white</item>
+        <!-- Pre-12: 아이콘 표시를 위해 layer-list 배경 사용 -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <!-- 백포트 제약: Vector 또는 PNG/JPG/WEBP만 지원 -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>
