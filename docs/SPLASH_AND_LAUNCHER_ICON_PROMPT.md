@@ -13,9 +13,9 @@
 - 동일 베이스를 공유하는 여러 앱/모듈에 “템플릿 변수”만 바꿔 재사용 가능
 
 핵심 요약
-- 31+: 플랫폼 테마를 부모로 사용, `windowSplashScreenIconBackgroundColor` 미설정(원형 컨테이너 방지)
-- 30-: 중앙 아이콘은 288dp 전용 벡터를 바로 그림(layer-list 기반)
-- 런처 아이콘 전경 인셋: 18dp(표준), 스플래시 전용 인셋/크기와 분리
+- 31+: Theme.SplashScreen을 부모로 사용, `windowSplashScreenIconBackgroundColor` 미설정(원형 컨테이너 방지), AnimatedIcon은 Vector/PNG/WEBP만
+- 30-: 스플래시는 layer-list로 흰 배경 + 중앙 288dp 전용 벡터를 직접 그림, 메인 테마는 흰 배경만
+- 런처 전경 인셋: 18dp(표준), 스플래시 전용 리소스와 분리
 - 최소 표시시간 800ms, 31+ 퇴장 애니메이션 220ms
 
 ---
@@ -33,13 +33,13 @@
 - DRAWABLE_SPLASH_LAYER: 스플래시 layer-list 드로어블 이름 (기본: splash_screen)
 - DRAWABLE_SPLASH_ICON: 스플래시 중앙 아이콘 컨테이너 이름 (기본: splash_app_icon)
 - DRAWABLE_SPLASH_LARGE: 288dp 전용 전경 벡터 이름 (기본: splash_foreground_288)
-- LAUNCHER_INSET_FILES: 런처 전경 인셋 파일 글롭 (기본: drawable-anydpi-*/ic_launcher_foreground_inset.xml)
+- LAUNCHER_FOREGROUND_FILES: 런처 전경 벡터 파일 글롭 (기본: drawable-anydpi-*/ic_launcher_foreground.xml)
 - ICON_COLORS: { fgColorRef: @color/icon_launcher_fg, bgColorRef: @color/icon_launcher_bg }
 
 [정책]
 1) Android 12+(API 31+) 스플래시
-   - values-v31/themes.xml의 스플래시 테마 부모를 플랫폼 테마(@android:style/Theme.DeviceDefault.NoActionBar)로 한다.
-   - windowSplashScreenAnimatedIcon=@drawable/ic_launcher_foreground (원형 배경 없음)
+   - values-v31/themes.xml의 스플래시 테마 부모는 Theme.SplashScreen을 사용.
+   - windowSplashScreenAnimatedIcon=@drawable/${DRAWABLE_SPLASH_LARGE} (Vector/PNG/WEBP만; InsetDrawable 금지)
    - windowSplashScreenBackground=@android:color/white
    - postSplashScreenTheme=@style/${THEME_BASE}
    - android:windowSplashScreenIconBackgroundColor 는 "설정하지 않는다"(중요)
@@ -47,33 +47,39 @@
 2) Android 11-(API 30-) 스플래시
    - 메인 테마(android:windowBackground)는 항상 @android:color/white (잔상 방지)
    - 스플래시 테마에서만 android:windowBackground=@drawable/${DRAWABLE_SPLASH_LAYER} 설정
-   - ${DRAWABLE_SPLASH_ICON} 은 ${DRAWABLE_SPLASH_LARGE}(288dp 벡터)를 직접 그림
+   - ${DRAWABLE_SPLASH_ICON} 은 ${DRAWABLE_SPLASH_LARGE}(288dp 벡터)를 직접 그림 (Vector/PNG/WEBP만)
 
 3) 런처 아이콘(Adaptive)
-   - ${LAUNCHER_INSET_FILES} 의 inset을 18dp(좌우상하)로 유지 (v21/v26 공통)
+   - ${LAUNCHER_FOREGROUND_FILES}의 전경 벡터가 18dp 세이프존(인셋) 기준을 만족하도록 확인
+     (필요시 InsetDrawable 래퍼를 사용하되, Compose painterResource 대상으론 사용하지 않음)
    - 모노크롬/배경은 유지, 색상은 ${ICON_COLORS.fgColorRef}/${ICON_COLORS.bgColorRef}
 
 4) 공통 런타임 규칙
    - BaseActivity.installSplashScreen()에서 setKeepOnScreenCondition 으로 최소 800ms 보장
    - API 31+에서 퇴장 애니메이션: 220ms, fade-out + scale 1.05 적용
 
-5) 파일/경로(모듈당)
-   - res: values*/themes.xml, drawable/${DRAWABLE_SPLASH_LAYER}.xml, drawable/${DRAWABLE_SPLASH_ICON}.xml, drawable/${DRAWABLE_SPLASH_LARGE}.xml, ${LAUNCHER_INSET_FILES}
+5) 내부 네비게이션에서 스플래시 생략(옵션, API 30-)
+   - 내부 이동 시 인텐트에 putExtra("skip_splash", true)를 추가하고, Start/런처 화면에서 API<31이면 스플래시 지연/오버레이를 건너뛰고
+     window.setBackgroundDrawable(white)로 즉시 덮은 뒤 첫 프레임 이후 null로 되돌려 잔상을 제거
+
+6) 파일/경로(모듈당)
+   - res: values*/themes.xml, drawable/${DRAWABLE_SPLASH_LAYER}.xml, drawable/${DRAWABLE_SPLASH_ICON}.xml, drawable/${DRAWABLE_SPLASH_LARGE}.xml, ${LAUNCHER_FOREGROUND_FILES}
    - 코드: BaseActivity(or Application) 위치
 
 [에이전트 절차(이드empotent)]
 A. 모듈 탐색: settings.gradle 및 각 모듈 build.gradle(.kts)에서 'com.android.application' 플러그인 적용 모듈을 APP_MODULES로 결정(사용자 지정 값을 우선) 
 B. 각 모듈에 대해:
-   1) values-v31/themes.xml 에서 스플래시 테마 부모를 플랫폼 테마로 교체; windowSplashScreenIconBackgroundColor 제거
+   1) values-v31/themes.xml 에서 스플래시 테마 부모를 Theme.SplashScreen으로 일치; windowSplashScreenIconBackgroundColor 제거
    2) values, v23, v29 의 스플래시 테마에서 windowBackground=@drawable/${DRAWABLE_SPLASH_LAYER} 설정; 메인 테마 windowBackground=@android:color/white 유지
    3) drawable/${DRAWABLE_SPLASH_ICON}.xml 이 ${DRAWABLE_SPLASH_LARGE}를 직접 그리도록 구성(미존재 시 생성)
    4) ${DRAWABLE_SPLASH_LARGE}.xml (288dp) 생성/갱신; path는 런처 아이콘과 동일
-   5) ${LAUNCHER_INSET_FILES} 의 inset을 18dp로 통일
+   5) ${LAUNCHER_FOREGROUND_FILES}의 전경이 18dp 세이프존을 만족하는지 확인(벡터 경계/패스 또는 Inset 래퍼로 보정)
    6) BaseActivity 에 최소 800ms 유지 + (31+) 퇴장 애니메이션 적용(이미 있으면 건너뜀)
 C. 빌드: gradlew :<module>:assembleDebug -x lint 를 모듈별 실행
 D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동등성/런처 과대 표시 없음 확인
 
 [트러블슈팅]
+- Compose Image(painterResource)는 InsetDrawable을 지원하지 않음 → Vector/PNG/WEBP 사용
 - 31+: 스플래시 캐시 → 앱 삭제 후 재설치
 - 런처 아이콘 캐시 → 런처 앱 캐시 삭제 또는 기기 재부팅
 ```
@@ -81,24 +87,26 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 ---
 
 ## 2) 본 저장소의 현재 적용 상태(최신)
-- 31+ 스플래시 테마: 부모를 플랫폼 테마로 사용, 원형 배경 속성 미설정 → 동그란 테두리 제거
+- 31+ 스플래시 테마: Theme.SplashScreen 부모 사용, 원형 배경 속성 미설정, AnimatedIcon은 288dp Vector(`@drawable/splash_foreground_288`)
   - 파일: `app/src/main/res/values-v31/themes.xml`
-- 30- 스플래시 테마: layer-list 배경(@drawable/splash_screen)으로 중앙 아이콘 표시
+- 30- 스플래시 테마: layer-list 배경(@drawable/splash_screen)으로 중앙 아이콘 표시, 메인 테마는 흰 배경
   - 파일: `values/`, `values-v23/`, `values-v29/`의 `Theme.NoSmokeTimer.Splash`
 - Pre-12 중앙 아이콘: 288dp 전용 벡터 사용
-  - 파일: `drawable/splash_app_icon.xml` → `@drawable/splash_foreground_288`
+  - 파일: `drawable/splash_app_icon.xml` → 내부에 `@drawable/splash_foreground_288`
   - 파일: `drawable/splash_foreground_288.xml` (크기: 288dp)
-- 런처 아이콘 전경 인셋: 표준 18dp
-  - 파일: `drawable-anydpi-v21/ic_launcher_foreground_inset.xml`, `drawable-anydpi-v26/ic_launcher_foreground_inset.xml`
+- 런처 아이콘 전경: 18dp 세이프존 기준으로 설계된 전경 벡터(`drawable-anydpi-v21/ic_launcher_foreground.xml`, `drawable-anydpi-v26/ic_launcher_foreground.xml`)
 - 공통 런타임 규칙: 최소 800ms 보장 + 31+ 퇴장 애니메이션(220ms)
   - 파일: `core/ui/BaseActivity.kt`
+- Start 화면 워터마크(배경 장식): 공용 스크린의 backgroundDecoration 슬롯을 사용, Vector를 직접 그려 Compose 충돌 회피
+  - 파일: `core/ui/StandardScreen.kt`, `feature/start/StartActivity.kt`
 
 ---
 
 ## 3) 반복 이슈의 근본 원인과 회피법
-- 원형 테두리(31+): 라이브러리 테마(Theme.SplashScreen) 상속 시 `?windowSplashScreenIconBackgroundColor`가 주입될 수 있음 → 플랫폼 테마 부모 + 해당 속성 미설정
-- 기기간 스플래시 크기 차이: 31+는 표준(배경 없음 288dp)을 강제, 30-는 앱 리소스 정의에 좌우 → Pre-12는 288dp 전용 벡터를 직접 그림
-- 런처 아이콘 과대 표시: 전경 인셋을 18dp보다 줄이면 홈 화면에서 커 보임 → 런처 인셋은 항상 18dp, 스플래시는 전용 리소스로 분리
+- InsetDrawable 사용 금지(Compose): painterResource 대상으론 Vector/PNG/WEBP만 허용 → 워터마크/장식은 Vector 사용
+- 원형 테두리(31+): Theme.SplashScreen 사용 시 `?windowSplashScreenIconBackgroundColor`가 개입될 수 있으므로 해당 속성 미설정
+- 기기간 스플래시 크기 차이: 31+는 표준(배경 없음 288dp), 30-는 앱 리소스 좌우 → Pre-12는 288dp 전용 벡터를 직접 그림
+- 런처 아이콘 과대 표시: 전경 세이프존 18dp 유지(벡터 경계/패스 또는 Inset 래퍼로 보정)
 - 잔상/겹침: 메인 테마 windowBackground 에 스플래시 레이어 사용 시 전환 후 잔상 → 메인 테마는 흰색만, 스플래시는 스플래시 테마에만 사용
 
 ---
@@ -107,7 +115,7 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 - [ ] values*/themes.xml: 정책 반영(31+ 부모/배경, 30- layer-list, 메인 테마 흰 배경)
 - [ ] drawable/${DRAWABLE_SPLASH_ICON}.xml → ${DRAWABLE_SPLASH_LARGE} 참조
 - [ ] ${DRAWABLE_SPLASH_LARGE}.xml → width/height=288dp, path 최신
-- [ ] ${LAUNCHER_INSET_FILES} → inset=18dp
+- [ ] ${LAUNCHER_FOREGROUND_FILES} → 18dp 세이프존 충족
 - [ ] BaseActivity → keepOnScreenCondition(>=800ms) + (31+) 퇴장 애니메이션
 - [ ] assembleDebug 모듈별 성공
 - [ ] 기기 캡처: 30/36 크기 동등, 런처 과대 표시 없음
@@ -128,8 +136,8 @@ G:\Workspace\NoSmokeTimer\gradlew.bat --no-daemon --no-configuration-cache --con
   - `app/src/main/res/drawable/splash_app_icon.xml`
   - `app/src/main/res/drawable/splash_foreground_288.xml`
 - 런처
-  - `app/src/main/res/drawable-anydpi-v21/ic_launcher_foreground_inset.xml`
-  - `app/src/main/res/drawable-anydpi-v26/ic_launcher_foreground_inset.xml`
+  - `app/src/main/res/drawable-anydpi-v21/ic_launcher_foreground.xml`
+  - `app/src/main/res/drawable-anydpi-v26/ic_launcher_foreground.xml`
 - 테마
   - `app/src/main/res/values/themes.xml`
   - `app/src/main/res/values-v23/themes.xml`
@@ -137,6 +145,8 @@ G:\Workspace\NoSmokeTimer\gradlew.bat --no-daemon --no-configuration-cache --con
   - `app/src/main/res/values-v31/themes.xml`
 - 코드
   - `app/src/main/java/com/sweetapps/nosmoketimer/core/ui/BaseActivity.kt`
+  - `app/src/main/java/com/sweetapps/nosmoketimer/core/ui/StandardScreen.kt`
+  - `app/src/main/java/com/sweetapps/nosmoketimer/feature/start/StartActivity.kt`
 
 ---
 
