@@ -1,5 +1,21 @@
 # 스플래시 + 런처 아이콘 — 단일 표준 프롬프트(프로젝트 적용본)
 
+> 문서 버전
+> - 버전: v1.1.0
+> - 최근 업데이트: 2025-10-20
+> - 변경 요약: Pre-Android 12(API 30-)에서 installSplashScreen(compat) 전역 호출 금지 정책을 명시하고, 런타임 규칙/트러블슈팅/체크리스트를 해당 정책과 일치하도록 업데이트
+>
+> 변경 이력(Changelog)
+> - v1.1.0 (2025-10-20)
+>   - API 30-에서 installSplashScreen 미사용을 명문화(비런처 화면 compat 인플레이트로 인한 InflateException 재발 방지)
+>   - 공통 런타임 규칙, 내부 네비게이션, 트러블슈팅, 체크리스트 갱신
+> - v1.0.0 (초판)
+>   - 스플래시/런처 아이콘 표준 초안 정립(31+ Theme.SplashScreen, 30- layer-list, 288dp 전용 벡터 등)
+>
+> 버전 규칙
+> - Semantic Versioning 준수: MAJOR(호환성 깨짐)/MINOR(기능·정책 추가)/PATCH(오타·경미한 정정)
+> - 문서 내용이 변경될 때 상단 버전/날짜/요약, 하단 변경 이력을 함께 업데이트합니다.
+
 <!-- Canonical source for all apps sharing the same base. Reuse across modules/projects via the template variables below. -->
 
 이 문서는 스플래시 화면과 런처 아이콘을 일관되게 구현/유지하기 위한 단일 기준입니다. 그대로 복사·실행 가능한 “AI 에이전트용 프롬프트”와, 본 저장소에 이미 적용된 실제 경로/정책을 함께 제공합니다.
@@ -17,6 +33,7 @@
 - 30-: 스플래시는 layer-list로 흰 배경 + 중앙 288dp 전용 벡터를 직접 그림, 메인 테마는 흰 배경만
 - 런처 전경 인셋: 18dp(표준), 스플래시 전용 리소스와 분리
 - 최소 표시시간 800ms, 31+ 퇴장 애니메이션 220ms
+- 중요: API 30-에서는 installSplashScreen(compat) 호출을 전역에서 사용하지 않음. 스플래시는 테마 layer-list로만 표시(비런처 화면에서 compat 뷰 인플레이트로 인한 크래시 방지)
 
 ---
 
@@ -55,12 +72,13 @@
    - 모노크롬/배경은 유지, 색상은 ${ICON_COLORS.fgColorRef}/${ICON_COLORS.bgColorRef}
 
 4) 공통 런타임 규칙
-   - BaseActivity.installSplashScreen()에서 setKeepOnScreenCondition 으로 최소 800ms 보장
-   - API 31+에서 퇴장 애니메이션: 220ms, fade-out + scale 1.05 적용
+   - API 31+에서만 BaseActivity.installSplashScreen() 호출: setKeepOnScreenCondition 으로 최소 800ms 보장
+   - API 30-에선 installSplashScreen(compat) 호출 금지: 테마 windowBackground 스플래시만 사용
+   - API 31+ 퇴장 애니메이션: 220ms, fade-out + scale 1.05 적용
 
-5) 내부 네비게이션에서 스플래시 생략(옵션, API 30-)
-   - 내부 이동 시 인텐트에 putExtra("skip_splash", true)를 추가하고, Start/런처 화면에서 API<31이면 스플래시 지연/오버레이를 건너뛰고
-     window.setBackgroundDrawable(white)로 즉시 덮은 뒤 첫 프레임 이후 null로 되돌려 잔상을 제거
+5) 내부 네비게이션에서 스플래시 생략(옵션)
+   - API 30-: 기본적으로 installSplashScreen을 사용하지 않으므로 내부 이동 시 스플래시 재등장 없음
+   - (선택) 런처로만 적용: 내부 이동 시 putExtra("skip_splash", true)를 사용하고, 필요 시 런처 화면에서 첫 프레임 처리로 잔상 제거
 
 6) 파일/경로(모듈당)
    - res: values*/themes.xml, drawable/${DRAWABLE_SPLASH_LAYER}.xml, drawable/${DRAWABLE_SPLASH_ICON}.xml, drawable/${DRAWABLE_SPLASH_LARGE}.xml, ${LAUNCHER_FOREGROUND_FILES}
@@ -74,15 +92,15 @@ B. 각 모듈에 대해:
    3) drawable/${DRAWABLE_SPLASH_ICON}.xml 이 ${DRAWABLE_SPLASH_LARGE}를 직접 그리도록 구성(미존재 시 생성)
    4) ${DRAWABLE_SPLASH_LARGE}.xml (288dp) 생성/갱신; path는 런처 아이콘과 동일
    5) ${LAUNCHER_FOREGROUND_FILES}의 전경이 18dp 세이프존을 만족하는지 확인(벡터 경계/패스 또는 Inset 래퍼로 보정)
-   6) BaseActivity 에 최소 800ms 유지 + (31+) 퇴장 애니메이션 적용(이미 있으면 건너뜀)
+   6) BaseActivity 에 (31+) installSplashScreen + 최소 800ms 유지 + 220ms 퇴장 애니메이션/(30-) 미호출 적용
 C. 빌드: gradlew :<module>:assembleDebug -x lint 를 모듈별 실행
 D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동등성/런처 과대 표시 없음 확인
 
 [트러블슈팅]
+- API 30-에서 AndroidX SplashScreen compat가 비런처 화면에서 인플레이트되면 테마 속성 누락으로 InflateException이 발생할 수 있음 → installSplashScreen은 31+에서만 호출하거나, 런처 액티비티로 범위를 한정
 - Compose Image(painterResource)는 InsetDrawable을 지원하지 않음 → Vector/PNG/WEBP 사용
 - 31+: 스플래시 캐시 → 앱 삭제 후 재설치
 - 런처 아이콘 캐시 → 런처 앱 캐시 삭제 또는 기기 재부팅
-```
 
 ---
 
@@ -95,7 +113,7 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
   - 파일: `drawable/splash_app_icon.xml` → 내부에 `@drawable/splash_foreground_288`
   - 파일: `drawable/splash_foreground_288.xml` (크기: 288dp)
 - 런처 아이콘 전경: 18dp 세이프존 기준으로 설계된 전경 벡터(`drawable-anydpi-v21/ic_launcher_foreground.xml`, `drawable-anydpi-v26/ic_launcher_foreground.xml`)
-- 공통 런타임 규칙: 최소 800ms 보장 + 31+ 퇴장 애니메이션(220ms)
+- 공통 런타임 규칙: (31+) 최소 800ms 보장 + 220ms 퇴장 애니메이션, (30-) BaseActivity에서는 installSplashScreen 미사용
   - 파일: `core/ui/BaseActivity.kt`
 - Start 화면 워터마크(배경 장식): 공용 스크린의 backgroundDecoration 슬롯을 사용, Vector를 직접 그려 Compose 충돌 회피
   - 파일: `core/ui/StandardScreen.kt`, `feature/start/StartActivity.kt`
@@ -108,6 +126,7 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 - 기기간 스플래시 크기 차이: 31+는 표준(배경 없음 288dp), 30-는 앱 리소스 좌우 → Pre-12는 288dp 전용 벡터를 직접 그림
 - 런처 아이콘 과대 표시: 전경 세이프존 18dp 유지(벡터 경계/패스 또는 Inset 래퍼로 보정)
 - 잔상/겹침: 메인 테마 windowBackground 에 스플래시 레이어 사용 시 전환 후 잔상 → 메인 테마는 흰색만, 스플래시는 스플래시 테마에만 사용
+- Pre-31 compat 스플래시 전역 호출: 비런처 화면에서도 compat 뷰가 인플레이트되어 속성 미정의로 크래시 유발 가능 → (31+)에만 호출하거나 런처 화면으로 범위 제한
 
 ---
 
@@ -116,7 +135,7 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 - [ ] drawable/${DRAWABLE_SPLASH_ICON}.xml → ${DRAWABLE_SPLASH_LARGE} 참조
 - [ ] ${DRAWABLE_SPLASH_LARGE}.xml → width/height=288dp, path 최신
 - [ ] ${LAUNCHER_FOREGROUND_FILES} → 18dp 세이프존 충족
-- [ ] BaseActivity → keepOnScreenCondition(>=800ms) + (31+) 퇴장 애니메이션
+- [ ] BaseActivity → (31+) installSplashScreen + keepOnScreenCondition(>=800ms) + 퇴장 애니메이션 / (30-) installSplashScreen 미호출
 - [ ] assembleDebug 모듈별 성공
 - [ ] 기기 캡처: 30/36 크기 동등, 런처 과대 표시 없음
 

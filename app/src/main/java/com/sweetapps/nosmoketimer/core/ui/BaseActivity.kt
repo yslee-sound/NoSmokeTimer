@@ -55,21 +55,13 @@ abstract class BaseActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Install SplashScreen
-        val splashScreen: SplashScreen = installSplashScreen()
-        val start = System.currentTimeMillis()
-        // 내부 네비게이션(API 30-)에서 스플래시 재등장 방지를 위한 플래그 처리
-        val skipSplash = intent?.getBooleanExtra("skip_splash", false) == true
-        // 모든 버전에서 최소 표시 시간 보장 (AndroidX backport 지원).
-        // 단, API 30-에서 skip_splash=true이면 즉시 해제하여 테마 windowBackground의 재등장을 방지
-        splashScreen.setKeepOnScreenCondition {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && skipSplash) {
-                false
-            } else {
+        // Android 12+만 플랫폼 스플래시 사용; Pre-31은 테마 windowBackground 방식 유지
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val splashScreen: SplashScreen = installSplashScreen()
+            val start = System.currentTimeMillis()
+            splashScreen.setKeepOnScreenCondition {
                 System.currentTimeMillis() - start < 800
             }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             splashScreen.setOnExitAnimationListener { provider ->
                 val v = provider.view
                 v.animate()
@@ -80,9 +72,6 @@ abstract class BaseActivity : ComponentActivity() {
                     .withEndAction { provider.remove() }
                     .start()
             }
-        } else {
-            // Pre-31: 애니메이션 리스너는 무시되거나 기본 제거됨
-            splashScreen.setOnExitAnimationListener { provider -> provider.remove() }
         }
         super.onCreate(savedInstanceState)
         nicknameState.value = getNickname()
