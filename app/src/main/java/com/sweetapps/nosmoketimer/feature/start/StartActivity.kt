@@ -55,6 +55,14 @@ import kotlin.math.max
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import android.graphics.Bitmap
+import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.res.painterResource
 
 class StartActivity : BaseActivity() {
     private lateinit var appUpdateManager: AppUpdateManager
@@ -75,10 +83,49 @@ class StartActivity : BaseActivity() {
         // In-App Update 초기화
         appUpdateManager = AppUpdateManager(this)
 
+        val isPre31 = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+        val skipSplash = intent?.getBooleanExtra("skip_splash", false) == true
+
         setContent {
             // 첫 실행 화면에서는 edge-to-edge 비활성화하여 상태바를 OS가 분리 렌더링
             BaseScreen(applyBottomInsets = false, applySystemBars = false) {
-                StartScreenWithUpdate(appUpdateManager)
+                Box(Modifier.fillMaxSize()) {
+                    StartScreenWithUpdate(appUpdateManager)
+
+                    // Pre-31용 Compose 스플래시 오버레이
+                    if (isPre31) {
+                        var showOverlay by remember { mutableStateOf(!skipSplash) }
+                        // 최소 표시시간 800ms 유지
+                        LaunchedEffect(Unit) {
+                            if (!skipSplash) {
+                                delay(800)
+                                showOverlay = false
+                                // overlay 숨김 직후 윈도우 배경 제거 (잔상 방지)
+                                window.setBackgroundDrawable(null)
+                            } else {
+                                // 내부 네비게이션으로 진입 시 즉시 배경 제거
+                                window.setBackgroundDrawable(null)
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = showOverlay,
+                            enter = fadeIn() + scaleIn(initialScale = 0.95f),
+                            exit = fadeOut() + scaleOut(targetScale = 1.05f)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // 흰 배경은 windowBackground(splash_screen)로 이미 적용
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                    contentDescription = "Splash Icon",
+                                    modifier = Modifier.size(240.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -283,8 +330,8 @@ fun StartScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                // 기존 대비 2.0배 확대
-                val iconSize = (maxWidth * 0.4f).coerceIn(120.dp, 320.dp) * 2.0f
+                // 워터마크: 화면 짧은 변의 70% 크기
+                val iconSize = (maxWidth * 0.70f).coerceIn(120.dp, 320.dp)
                 // 스플래시 인셋(1/6)을 픽셀 그리드에 반올림 정렬
                 val density = LocalDensity.current
                 val insetPadding = with(density) {
@@ -312,7 +359,7 @@ fun StartScreen() {
                             contentDescription = "금연 아이콘",
                             modifier = Modifier.fillMaxSize().padding(insetPadding),
                             filterQuality = FilterQuality.None,
-                            alpha = 0.3f // 더 흐리게
+                            alpha = 0.12f // 권장값으로 낮춤
                         )
                     }
                 }

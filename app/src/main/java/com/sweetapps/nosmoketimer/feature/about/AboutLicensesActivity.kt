@@ -42,8 +42,9 @@ class AboutLicensesActivity : BaseActivity() {
 @Composable
 private fun AboutLicensesScreen() {
     val context = LocalContext.current
-    val ccByUrl = "https://creativecommons.org/licenses/by/4.0/"
-    val sourceUrl = "https://www.figma.com/community/file/1227184301417272677/free-wayfinding-vector-icons-guidance-icon-set"
+    // 링크를 문자열 리소스로 관리 (수정은 res/values/strings.xml)
+    val ccByUrl = stringResource(id = R.string.about_link_cc_by)
+    val sourceUrl = stringResource(id = R.string.about_link_icon_source)
 
     Column(
         modifier = Modifier

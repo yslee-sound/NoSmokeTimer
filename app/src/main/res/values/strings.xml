@@ -74,6 +74,10 @@
     <string name="about_value_change_desc">아이콘의 색상 및 모양 일부를 수정하여 사용함.</string>
     <string name="about_notice_compliance">본 앱은 CC BY 4.0 조건에 따라 적절한 저작자 표시, 출처 및 라이선스 링크 제공, 변경 사항 고지를 준수합니다.</string>
 
+    <!-- External links for Open License (moved from code) -->
+    <string name="about_link_cc_by">https://creativecommons.org/licenses/by/4.0/</string>
+    <string name="about_link_icon_source">https://www.figma.com/community/file/1227184301417272677/free-wayfinding-vector-icons-guidance-icon-set</string>
+
     <string name="action_copy">복사</string>
     <string name="toast_copied">주소를 복사했습니다.</string>
 </resources>

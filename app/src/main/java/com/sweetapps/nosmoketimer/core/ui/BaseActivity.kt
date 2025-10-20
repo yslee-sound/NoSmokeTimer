@@ -50,9 +50,28 @@ abstract class BaseActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Install SplashScreen for Android 12+
+        // Install SplashScreen
         val splashScreen: SplashScreen = installSplashScreen()
-        splashScreen.setOnExitAnimationListener { provider -> provider.remove() }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val start = System.currentTimeMillis()
+            splashScreen.setKeepOnScreenCondition {
+                // 최소 800ms 유지
+                System.currentTimeMillis() - start < 800
+            }
+            splashScreen.setOnExitAnimationListener { provider ->
+                val v = provider.view
+                v.animate()
+                    .scaleX(1.05f)
+                    .scaleY(1.05f)
+                    .alpha(0f)
+                    .setDuration(220)
+                    .withEndAction { provider.remove() }
+                    .start()
+            }
+        } else {
+            // Pre-31: StartActivity에서 Compose 오버레이로 처리
+            splashScreen.setOnExitAnimationListener { provider -> provider.remove() }
+        }
         super.onCreate(savedInstanceState)
         nicknameState.value = getNickname()
     }
@@ -247,9 +266,14 @@ abstract class BaseActivity : ComponentActivity() {
                 val sharedPref = getSharedPreferences("user_settings", MODE_PRIVATE)
                 val startTime = sharedPref.getLong("start_time", 0L)
                 if (startTime > 0) {
-                    if (this !is RunActivity) navigateToActivity(RunActivity::class.java)
+                    if (this !is com.sweetapps.nosmoketimer.feature.run.RunActivity) navigateToActivity(com.sweetapps.nosmoketimer.feature.run.RunActivity::class.java)
                 } else {
-                    if (this !is StartActivity) navigateToActivity(StartActivity::class.java)
+                    if (this !is com.sweetapps.nosmoketimer.feature.start.StartActivity) {
+                        val intent = Intent(this, com.sweetapps.nosmoketimer.feature.start.StartActivity::class.java)
+                        intent.putExtra("skip_splash", true)
+                        startActivity(intent)
+                        overridePendingTransition(0, 0)
+                    }
                 }
             }
             "기록" -> if (this !is com.sweetapps.nosmoketimer.feature.records.RecordsActivity) {
@@ -272,7 +296,7 @@ abstract class BaseActivity : ComponentActivity() {
 
     @Suppress("DEPRECATION")
     private fun navigateToNicknameEdit() {
-        val intent = Intent(this, NicknameEditActivity::class.java)
+        val intent = Intent(this, com.sweetapps.nosmoketimer.feature.profile.NicknameEditActivity::class.java)
         startActivity(intent)
         overridePendingTransition(0, 0)
     }

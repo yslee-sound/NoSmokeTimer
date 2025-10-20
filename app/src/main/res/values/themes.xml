@@ -7,19 +7,20 @@
         <!-- 상태바 배경은 흰색 (라이트 테마에 맞춤) -->
         <item name="android:statusBarColor">@android:color/white</item>
 
-        <!-- 필요 시 상태바/내비바 색 등 시스템 속성 커스터마이즈 가능 -->
-        <item name="android:windowBackground">@android:color/white</item>
+        <!-- 초기 프레임에서 스플래시 배경과 동일하게 표시 -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
         <!-- 일부 기기에서 상태바 아래 얇은 선(오버레이) 제거 -->
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <!-- 스플래시 테마(Pre-Android 12 + backport용) -->
-    <style name="Theme.NoSmokeTimer.Splash" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+    <style name="Theme.NoSmokeTimer.Splash" parent="Theme.SplashScreen">
         <!-- 즉시 흰 화면 보장 + 중앙에 새 아이콘 표시 -->
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <!-- backport가 읽는 속성들 (호환 사용 시 적용) -->
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_app_icon</item>
+        <!-- 백포트 제약: Vector 또는 PNG/JPG/WEBP만 지원 -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
     </style>
