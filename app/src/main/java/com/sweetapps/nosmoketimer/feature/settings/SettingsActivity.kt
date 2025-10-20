@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -101,36 +103,40 @@ fun SettingsCard(title: String, titleColor: Color, content: @Composable () -> Un
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsOptionItem(isSelected: Boolean, label: String, onSelected: () -> Unit) {
-    Card(
-        onClick = onSelected,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .clickable(role = Role.RadioButton, onClick = onSelected)
+            .padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = isSelected,
-                onClick = onSelected,
-                colors = RadioButtonDefaults.colors(
-                    selectedColor = colorResource(id = R.color.color_accent_blue),
-                    unselectedColor = colorResource(id = R.color.color_radio_unselected)
-                )
+        RadioButton(
+            selected = isSelected,
+            onClick = onSelected,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = colorResource(id = R.color.color_accent_blue),
+                unselectedColor = colorResource(id = R.color.color_radio_unselected)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = label,
-                style = if (isSelected) MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold) else MaterialTheme.typography.bodyLarge,
-                color = if (isSelected) colorResource(id = R.color.color_indicator_days) else colorResource(id = R.color.color_text_primary_dark)
-            )
-        }
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = label,
+            style = if (isSelected) MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold) else MaterialTheme.typography.bodyLarge,
+            color = if (isSelected) colorResource(id = R.color.color_indicator_days) else colorResource(id = R.color.color_text_primary_dark)
+        )
     }
 }
 
 @Composable
 fun SettingsOptionGroup(selectedOption: String, options: List<String>, labels: List<String>, onOptionSelected: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         options.forEachIndexed { index, option ->
-            SettingsOptionItem(isSelected = selectedOption == option, label = labels[index], onSelected = { onOptionSelected(option) })
+            SettingsOptionItem(
+                isSelected = selectedOption == option,
+                label = labels[index],
+                onSelected = { onOptionSelected(option) }
+            )
         }
     }
 }
