@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
+import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -57,7 +58,7 @@ private fun AboutLicensesScreen() {
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD),
-            border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+            border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light))
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(

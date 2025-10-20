@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
+import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
 import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import com.sweetapps.nosmoketimer.core.util.Constants
@@ -88,7 +89,7 @@ fun SettingsCard(title: String, titleColor: Color, content: @Composable () -> Un
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD), // lowered from CARD_HIGH
-        border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light)) // added subtle border for depth
+        border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light)) // subtle hairline border
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = titleColor, modifier = Modifier.padding(bottom = 12.dp))
@@ -104,13 +105,23 @@ fun SettingsOptionItem(isSelected: Boolean, label: String, onSelected: () -> Uni
         onClick = onSelected,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isSelected) colorResource(id = R.color.color_accent_blue).copy(alpha = 0.1f) else colorResource(id = R.color.color_bg_card_light)),
-        border = if (isSelected) BorderStroke(2.dp, colorResource(id = R.color.color_accent_blue)) else BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = isSelected, onClick = onSelected, colors = RadioButtonDefaults.colors(selectedColor = colorResource(id = R.color.color_accent_blue), unselectedColor = colorResource(id = R.color.color_radio_unselected)))
+            RadioButton(
+                selected = isSelected,
+                onClick = onSelected,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = colorResource(id = R.color.color_accent_blue),
+                    unselectedColor = colorResource(id = R.color.color_radio_unselected)
+                )
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = label, style = if (isSelected) MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold) else MaterialTheme.typography.bodyLarge, color = if (isSelected) colorResource(id = R.color.color_indicator_days) else colorResource(id = R.color.color_text_primary_dark))
+            Text(
+                text = label,
+                style = if (isSelected) MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold) else MaterialTheme.typography.bodyLarge,
+                color = if (isSelected) colorResource(id = R.color.color_indicator_days) else colorResource(id = R.color.color_text_primary_dark)
+            )
         }
     }
 }

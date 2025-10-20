@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.max
 import kotlin.math.min
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
+import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -604,7 +605,7 @@ private fun PeriodStatisticsSection(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD),
-        border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+        border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light))
     ) {
         Column(
             modifier = Modifier

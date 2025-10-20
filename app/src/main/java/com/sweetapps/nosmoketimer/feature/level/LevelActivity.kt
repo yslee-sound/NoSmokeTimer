@@ -28,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.mutableLongStateOf
+import com.sweetapps.nosmoketimer.R
+import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
 import com.sweetapps.nosmoketimer.core.util.Constants
@@ -35,7 +38,6 @@ import com.sweetapps.nosmoketimer.core.data.RecordsDataLoader
 import kotlinx.coroutines.delay
 import java.util.Locale
 import androidx.compose.foundation.BorderStroke
-import com.sweetapps.nosmoketimer.R
 import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 
 class LevelActivity : BaseActivity() {
@@ -107,7 +109,7 @@ private fun CurrentLevelCard(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD),
-        border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+        border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light))
     ) {
         Column(modifier = Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
@@ -300,7 +302,7 @@ private fun LevelItem(
         border = when {
             isCurrent -> BorderStroke(1.5.dp, level.color)
             isAchieved -> BorderStroke(1.dp, level.color.copy(alpha = 0.6f))
-            else -> null // 회색 테두리 제거
+            else -> BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light))
         },
         elevation = CardDefaults.cardElevation(defaultElevation = itemElevation)
     ) {

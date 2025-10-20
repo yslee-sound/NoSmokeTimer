@@ -26,6 +26,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.core.content.edit
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
+import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
 import com.sweetapps.nosmoketimer.core.ui.StandardScreenWithBottomButton
 import com.sweetapps.nosmoketimer.core.ui.components.AppUpdateDialog
@@ -221,7 +222,7 @@ fun StartScreen() {
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD), // down from CARD_HIGH
-                border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light))
+                border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light))
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(24.dp),

@@ -43,6 +43,7 @@ import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import com.sweetapps.nosmoketimer.core.util.FormatUtils
 import com.sweetapps.nosmoketimer.feature.start.StartActivity
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
+import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.R
 
 class QuitActivity : BaseActivity() {
@@ -79,7 +80,7 @@ fun QuitScreen() {
                 shape = RoundedCornerShape(LayoutConstants.CARD_CORNER_RADIUS),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD), // lowered from CARD_HIGH
-                border = BorderStroke(1.dp, colorResource(id = R.color.color_border_light)) // added for depth after elevation reduction
+                border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light)) // added for subtle depth
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(LayoutConstants.CARD_PADDING),
