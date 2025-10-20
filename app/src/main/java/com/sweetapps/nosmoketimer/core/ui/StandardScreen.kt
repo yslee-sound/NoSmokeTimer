@@ -33,7 +33,8 @@ fun StandardScreen(
 fun StandardScreenWithBottomButton(
     topContent: @Composable ColumnScope.() -> Unit,
     bottomButton: @Composable () -> Unit,
-    imePaddingEnabled: Boolean = true
+    imePaddingEnabled: Boolean = true,
+    backgroundDecoration: @Composable BoxScope.() -> Unit = {}
 ) {
     val rootModifier = Modifier
         .fillMaxSize()
@@ -50,6 +51,9 @@ fun StandardScreenWithBottomButton(
     Box(
         modifier = rootModifier
     ) {
+        // 배경 장식 레이어(배경 위, 콘텐츠 아래)
+        backgroundDecoration()
+
         // Centered column with max width constraint
         Column(
             modifier = Modifier

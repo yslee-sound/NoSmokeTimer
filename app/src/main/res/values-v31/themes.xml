@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+ Splash theme without circular background -->
-    <style name="Theme.NoSmokeTimer.Splash" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+    <!-- Android 12+ 시스템 SplashScreen: VectorDrawable 직접 지정 -->
+    <style name="Theme.NoSmokeTimer.Splash" parent="Theme.SplashScreen">
         <item name="android:windowBackground">@android:color/white</item>
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <!-- Do NOT set android:windowSplashScreenIconBackgroundColor to avoid circular container -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_foreground_288</item>
+        <!-- DO NOT set android:windowSplashScreenIconBackgroundColor to avoid circular container -->
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>

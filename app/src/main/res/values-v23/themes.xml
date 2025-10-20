@@ -15,7 +15,7 @@
         <!-- Pre-12: 아이콘 표시를 위해 layer-list 배경 사용 -->
         <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_foreground_288</item>
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>

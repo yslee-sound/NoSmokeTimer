@@ -20,11 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.core.content.edit
@@ -50,19 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
-import kotlin.math.max
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
-import android.graphics.Bitmap
-import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
+import android.os.Build
+import android.graphics.drawable.ColorDrawable
+import androidx.compose.ui.draw.alpha
+import android.graphics.Color as AndroidColor
 
 class StartActivity : BaseActivity() {
     private lateinit var appUpdateManager: AppUpdateManager
@@ -71,6 +60,13 @@ class StartActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         Constants.initializeUserSettings(this)
         Constants.ensureInstallMarkerAndResetIfReinstalled(this)
+
+        // 내부 네비게이션(API 30-)에서 스플래시 재등장 방지: skip_splash 처리
+        val skipSplash = intent?.getBooleanExtra("skip_splash", false) == true
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && skipSplash) {
+            // 스플래시 레이어를 흰 배경으로 즉시 덮고, 첫 프레임 직후 제거
+            window.setBackgroundDrawable(ColorDrawable(AndroidColor.WHITE))
+        }
 
         // 첫 프레임부터 상태바 표시 및 어두운 아이콘 적용 (Splash -> 첫 화면 전환 시 깜빡임 방지)
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -90,6 +86,11 @@ class StartActivity : BaseActivity() {
                     StartScreenWithUpdate(appUpdateManager)
                 }
             }
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && skipSplash) {
+            // 첫 프레임이 렌더링된 뒤 스플래시 배경 제거(잔상/깜빡임 방지)
+            window.decorView.post { window.setBackgroundDrawable(null) }
         }
     }
 
@@ -287,46 +288,8 @@ fun StartScreen() {
                 }
             }
 
-            // 카드 아래 중앙 여백을 파란 금연 아이콘으로 채움
+            // 카드 아래 여백은 backgroundDecoration에서 워터마크가 채웁니다.
             Spacer(modifier = Modifier.height(16.dp))
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                // 워터마크: 화면 짧은 변의 70% 크기
-                val iconSize = (maxWidth * 0.70f).coerceIn(120.dp, 320.dp)
-                // 스플래시 인셋(1/6)을 픽셀 그리드에 반올림 정렬
-                val density = LocalDensity.current
-                val insetPadding = with(density) {
-                    val iconPx = iconSize.toPx()
-                    val padPxRounded = (iconPx / 8f).roundToInt()
-                    padPxRounded.toDp()
-                }
-                Box(modifier = Modifier.size(iconSize), contentAlignment = Alignment.Center) {
-                    // 벡터를 안전하게 비트맵으로 래스터라이즈 후 최근접 샘플링 적용
-                    val contentSizeDp = iconSize - insetPadding * 2
-                    val (contentW, contentH) = with(density) {
-                        val w = max(1, contentSizeDp.toPx().roundToInt())
-                        val h = w // 정사각 아이콘
-                        w to h
-                    }
-                    val drawable = remember {
-                        ResourcesCompat.getDrawable(context.resources, R.drawable.ic_launcher_foreground, context.theme)
-                    }
-                    val bitmap = remember(contentW, contentH, drawable) {
-                        drawable?.toBitmap(contentW, contentH, Bitmap.Config.ARGB_8888)?.asImageBitmap()
-                    }
-                    if (bitmap != null) {
-                        Image(
-                            bitmap = bitmap,
-                            contentDescription = "금연 아이콘",
-                            modifier = Modifier.fillMaxSize().padding(insetPadding),
-                            filterQuality = FilterQuality.None,
-                            alpha = 0.12f // 권장값으로 낮춤
-                        )
-                    }
-                }
-            }
         },
         bottomButton = {
             Box(modifier = Modifier.size(96.dp), contentAlignment = Alignment.Center) {
@@ -347,7 +310,19 @@ fun StartScreen() {
                 )
             }
         },
-        imePaddingEnabled = false
+        imePaddingEnabled = false,
+        backgroundDecoration = {
+            // 워터마크: 화면 짧은 변의 70% 크기, 중앙 고정
+            BoxWithConstraints(Modifier.fillMaxSize()) {
+                val base = if (maxWidth < maxHeight) maxWidth else maxHeight
+                val iconSize = (base * 0.70f).coerceIn(120.dp, 320.dp)
+                Image(
+                    painter = painterResource(R.drawable.splash_foreground_288),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.Center).size(iconSize).alpha(0.12f)
+                )
+            }
+        }
     )
 }
 
