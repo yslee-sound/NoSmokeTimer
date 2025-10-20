@@ -49,9 +49,9 @@ fun SettingsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(start = LayoutConstants.SCREEN_HORIZONTAL_PADDING, top = 16.dp, end = LayoutConstants.SCREEN_HORIZONTAL_PADDING, bottom = LayoutConstants.SCREEN_HORIZONTAL_PADDING),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            // 스크롤 제거
+            .padding(start = LayoutConstants.SCREEN_HORIZONTAL_PADDING, top = 8.dp, end = LayoutConstants.SCREEN_HORIZONTAL_PADDING, bottom = LayoutConstants.SCREEN_HORIZONTAL_PADDING),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         SettingsCard(title = "금연 비용", titleColor = colorResource(id = R.color.color_indicator_money)) {
             SettingsOptionGroup(
@@ -93,8 +93,13 @@ fun SettingsCard(title: String, titleColor: Color, content: @Composable () -> Un
         elevation = CardDefaults.cardElevation(defaultElevation = AppElevation.CARD), // lowered from CARD_HIGH
         border = BorderStroke(AppBorder.Hairline, colorResource(id = R.color.color_border_light)) // subtle hairline border
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = titleColor, modifier = Modifier.padding(bottom = 12.dp))
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = titleColor,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             content()
         }
     }
@@ -106,9 +111,9 @@ fun SettingsOptionItem(isSelected: Boolean, label: String, onSelected: () -> Uni
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = 48.dp)
             .clickable(role = Role.RadioButton, onClick = onSelected)
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
@@ -119,7 +124,7 @@ fun SettingsOptionItem(isSelected: Boolean, label: String, onSelected: () -> Uni
                 unselectedColor = colorResource(id = R.color.color_radio_unselected)
             )
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = label,
             style = if (isSelected) MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold) else MaterialTheme.typography.bodyLarge,
@@ -130,7 +135,7 @@ fun SettingsOptionItem(isSelected: Boolean, label: String, onSelected: () -> Uni
 
 @Composable
 fun SettingsOptionGroup(selectedOption: String, options: List<String>, labels: List<String>, onOptionSelected: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         options.forEachIndexed { index, option ->
             SettingsOptionItem(
                 isSelected = selectedOption == option,
