@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,11 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import com.sweetapps.nosmoketimer.core.ui.theme.AlcoholicTimerTheme
 import com.sweetapps.nosmoketimer.feature.level.LevelActivity
 import com.sweetapps.nosmoketimer.feature.profile.NicknameEditActivity
@@ -43,6 +47,7 @@ import com.sweetapps.nosmoketimer.feature.records.AllRecordsActivity
 import com.sweetapps.nosmoketimer.feature.detail.DetailActivity
 import com.sweetapps.nosmoketimer.feature.about.AboutActivity
 import com.sweetapps.nosmoketimer.feature.about.AboutLicensesActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 abstract class BaseActivity : ComponentActivity() {
@@ -55,6 +60,8 @@ abstract class BaseActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Edge-to-Edge: 시스템 윈도우 적합 해제(전역 한 번)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         // Android 12+만 플랫폼 스플래시 사용; Pre-31은 테마 windowBackground 방식 유지
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val splashScreen: SplashScreen = installSplashScreen()
@@ -99,7 +106,7 @@ abstract class BaseActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun BaseScreen(
-        applyBottomInsets: Boolean = true,
+        applyBottomInsets: Boolean = false,
         applySystemBars: Boolean = true,
         showBackButton: Boolean = false,
         onBackClick: (() -> Unit)? = null,
@@ -116,11 +123,35 @@ abstract class BaseActivity : ComponentActivity() {
                 label = "blur"
             )
 
+            val focusManager = LocalFocusManager.current
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            // 드로어 입력 가드: 애니메이션 동안 + 닫힘 직후 200ms 소거
+            var drawerInputGuardActive by remember { mutableStateOf(false) }
+            val drawerGuardGraceMs = 200L
+            LaunchedEffect(drawerState) {
+                snapshotFlow { Triple(drawerState.isAnimationRunning, drawerState.currentValue, drawerState.targetValue) }
+                    .collect { (isAnimating, current, target) ->
+                        if (isAnimating || target != DrawerValue.Closed || current != DrawerValue.Closed) {
+                            focusManager.clearFocus(force = true)
+                            keyboardController?.hide()
+                            drawerInputGuardActive = true
+                        } else {
+                            drawerInputGuardActive = true
+                            delay(drawerGuardGraceMs)
+                            drawerInputGuardActive = false
+                        }
+                    }
+            }
+
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet(
-                        modifier = Modifier.fillMaxWidth(0.8f),
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)
+                            .statusBarsPadding()
+                            .navigationBarsPadding(),
                         drawerContainerColor = MaterialTheme.colorScheme.surface,
                         drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
                     ) {
@@ -191,7 +222,9 @@ abstract class BaseActivity : ComponentActivity() {
                                     ),
                                     navigationIcon = {
                                         Surface(
-                                            modifier = Modifier.padding(8.dp).size(48.dp),
+                                            modifier = Modifier
+                                                .padding(8.dp)
+                                                .size(48.dp),
                                             shape = CircleShape,
                                             color = Color(0xFFF8F9FA),
                                             shadowElevation = 2.dp
@@ -201,6 +234,8 @@ abstract class BaseActivity : ComponentActivity() {
                                                     if (showBackButton) {
                                                         onBackClick?.invoke() ?: run { this@BaseActivity.onBackPressedDispatcher.onBackPressed() }
                                                     } else {
+                                                        focusManager.clearFocus(force = true)
+                                                        keyboardController?.hide()
                                                         scope.launch { drawerState.open() }
                                                     }
                                                 }
@@ -255,6 +290,18 @@ abstract class BaseActivity : ComponentActivity() {
                                 .then(insetModifier)
                                 .blur(radius = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) blurRadius.dp else 0.dp)
                         ) { content() }
+
+                        // 드로어 입력 가드 오버레이: 애니메이션/그레이스 타임 동안 포인터 이벤트 소비
+                        if (drawerInputGuardActive) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clickable(
+                                        indication = null,
+                                        interactionSource = remember { MutableInteractionSource() }
+                                    ) { /* consume clicks */ }
+                            )
+                        }
                     }
                 }
             }

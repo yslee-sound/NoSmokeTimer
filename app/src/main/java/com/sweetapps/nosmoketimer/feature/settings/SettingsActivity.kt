@@ -21,10 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import com.sweetapps.nosmoketimer.core.ui.BaseActivity
+import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import com.sweetapps.nosmoketimer.core.util.Constants
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.asPaddingValues
 import com.sweetapps.nosmoketimer.R
 
 class SettingsActivity : BaseActivity() {
@@ -45,10 +43,11 @@ fun SettingsScreen() {
     var selectedFrequency by remember { mutableStateOf(initialFrequency) }
     var selectedDuration by remember { mutableStateOf(initialDuration) }
 
-    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(start = LayoutConstants.SCREEN_HORIZONTAL_PADDING, top = 16.dp, end = LayoutConstants.SCREEN_HORIZONTAL_PADDING, bottom = LayoutConstants.SCREEN_HORIZONTAL_PADDING),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SettingsCard(title = "금연 비용", titleColor = colorResource(id = R.color.color_indicator_money)) {
@@ -79,7 +78,6 @@ fun SettingsScreen() {
                 onOptionSelected = { newValue -> selectedDuration = newValue; sharedPref.edit { putString("selected_duration", newValue) } }
             )
         }
-        Spacer(modifier = Modifier.height(navBarBottom + 8.dp))
     }
 }
 

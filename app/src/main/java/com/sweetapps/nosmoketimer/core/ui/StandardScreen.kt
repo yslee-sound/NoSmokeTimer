@@ -43,10 +43,13 @@ fun StandardScreenWithBottomButton(
 
     val navBarPaddingValues = WindowInsets.navigationBars.asPaddingValues()
     val navBarBottom = navBarPaddingValues.calculateBottomPadding()
+    val imeBottom = WindowInsets.ime.asPaddingValues().calculateBottomPadding()
+    val effectiveBottom = if (navBarBottom > imeBottom) navBarBottom else imeBottom
+
     val buttonSize = 96.dp
     val extraGap = 32.dp
-    // 콘텐츠 영역이 버튼과 겹치지 않도록 버튼 반지름 + 추가 여백 + 시스템 바 높이만큼만 예약
-    val reservedBottom = (buttonSize / 2) + extraGap + navBarBottom
+    // 콘텐츠 영역이 버튼과 겹치지 않도록 버튼 반지름 + 추가 여백 + (IME/네비 중 큰 값) 만큼 예약
+    val reservedBottom = (buttonSize / 2) + extraGap + effectiveBottom
 
     Box(
         modifier = rootModifier
@@ -78,7 +81,7 @@ fun StandardScreenWithBottomButton(
             )
         }
 
-        // 버튼: 시스템 바 높이 + 적당한 여백(24dp) 적용
+        // 버튼: (IME/네비 중 큰 값) + 적당한 여백(24dp) 적용
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -86,7 +89,7 @@ fun StandardScreenWithBottomButton(
                 .padding(
                     start = LayoutConstants.BOTTOM_BUTTON_HORIZONTAL_PADDING,
                     end = LayoutConstants.BOTTOM_BUTTON_HORIZONTAL_PADDING,
-                    bottom = navBarBottom + 24.dp
+                    bottom = effectiveBottom + 24.dp
                 )
                 .wrapContentWidth(Alignment.CenterHorizontally)
                 .widthIn(max = MaxContentWidth),

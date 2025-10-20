@@ -38,8 +38,20 @@ class NicknameEditActivity : BaseActivity() {
 
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-        Column(modifier = Modifier.fillMaxSize().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "새로운 별명을 입력해주세요", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Color.Gray, modifier = Modifier.padding(bottom = 32.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "새로운 별명을 입력해주세요",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
             OutlinedTextField(
                 value = nicknameText,
                 onValueChange = { nicknameText = it },
@@ -50,9 +62,15 @@ class NicknameEditActivity : BaseActivity() {
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide(); saveNicknameAndFinish(nicknameText.trim()) })
             )
             Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = { saveNicknameAndFinish(nicknameText.trim()) }, modifier = Modifier.fillMaxWidth().height(48.dp), enabled = nicknameText.isNotBlank()) { Text(text = "저장", fontSize = 16.sp, fontWeight = FontWeight.Medium) }
+            Button(
+                onClick = { saveNicknameAndFinish(nicknameText.trim()) },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                enabled = nicknameText.isNotBlank()
+            ) { Text(text = "저장", fontSize = 16.sp, fontWeight = FontWeight.Medium) }
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(onClick = { finish() }, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text(text = "취소", fontSize = 16.sp, fontWeight = FontWeight.Medium) }
+            OutlinedButton(onClick = { finish() }, modifier = Modifier.fillMaxWidth().height(48.dp)) {
+                Text(text = "취소", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            }
         }
     }
 

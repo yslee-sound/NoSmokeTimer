@@ -36,6 +36,7 @@ import kotlinx.coroutines.delay
 import java.util.Locale
 import androidx.compose.foundation.BorderStroke
 import com.sweetapps.nosmoketimer.R
+import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 
 class LevelActivity : BaseActivity() {
 
@@ -78,21 +79,19 @@ fun LevelScreen() {
     val levelDays = Constants.calculateLevelDays(totalElapsedTime)
     val currentLevel = LevelDefinitions.getLevelInfo(levelDays)
 
-    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     // backgroundBrush 제거 (BaseScreen 배경 사용)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(start = LayoutConstants.SCREEN_HORIZONTAL_PADDING, top = 16.dp, end = LayoutConstants.SCREEN_HORIZONTAL_PADDING),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // 변경: float 경과 일수 전달
         CurrentLevelCard(currentLevel = currentLevel, currentDays = levelDays, elapsedDaysFloat = totalElapsedDaysFloat, startTime = startTime)
         LevelListCard(currentLevel = currentLevel, currentDays = levelDays)
-        Spacer(modifier = Modifier.height(navBarBottom + 8.dp))
+        Spacer(modifier = Modifier.height(LayoutConstants.SCREEN_HORIZONTAL_PADDING))
     }
 }
 

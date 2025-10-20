@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import com.sweetapps.nosmoketimer.core.ui.theme.AlcoholicTimerTheme
 import com.sweetapps.nosmoketimer.core.util.DateOverlapUtils
 import com.sweetapps.nosmoketimer.core.data.RecordsDataLoader
@@ -40,9 +41,6 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.max
 import kotlin.math.min
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.asPaddingValues
 import com.sweetapps.nosmoketimer.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,19 +204,17 @@ fun RecordsScreen(
         if (result.resultCode == Activity.RESULT_OK) { loadRecords() }
     }
 
-    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale = LocalDensity.current.fontScale * fontScale)) {
         // StandardScreen 제거: BaseScreen이 이미 gradient 배경을 제공하므로 여기서는 투명 컨테이너만.
         // 추가로 좌우 기본 패딩(16dp) 적용.
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = LayoutConstants.SCREEN_HORIZONTAL_PADDING)
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = navBarBottom + 4.dp),
+                contentPadding = PaddingValues(bottom = LayoutConstants.SCREEN_HORIZONTAL_PADDING),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 item {

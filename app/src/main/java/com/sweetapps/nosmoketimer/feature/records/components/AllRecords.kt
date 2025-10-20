@@ -1,5 +1,6 @@
 package com.sweetapps.nosmoketimer.feature.records.components
 
+import com.sweetapps.nosmoketimer.core.ui.LayoutConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,9 +29,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.asPaddingValues
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,8 +62,6 @@ fun AllRecordsScreen(
 
     LaunchedEffect(retryTrigger) { loadRecords() }
     LaunchedEffect(externalRefreshTrigger) { loadRecords() }
-
-    val navBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     CompositionLocalProvider(
         LocalDensity provides Density(
@@ -168,16 +164,16 @@ fun AllRecordsScreen(
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
-                        ) { EmptyRecordsState() }
+                        ) { AllRecordsEmptyState() }
                     }
 
                     else -> {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = LayoutConstants.SCREEN_HORIZONTAL_PADDING),
                             verticalArrangement = Arrangement.spacedBy(0.dp),
-                            contentPadding = PaddingValues(top = 12.dp, bottom = navBarBottom + 8.dp)
+                            contentPadding = PaddingValues(top = 12.dp, bottom = LayoutConstants.SCREEN_HORIZONTAL_PADDING)
                         ) {
                             items(
                                 items = records,
@@ -250,7 +246,7 @@ fun AllRecordsScreen(
 }
 
 @Composable
-private fun EmptyRecordsState() {
+private fun AllRecordsEmptyState() {
     val emptyCd = stringResource(id = R.string.empty_records_cd)
 
     // 카드 제거: 단순 중앙 정렬 안내만 표시
