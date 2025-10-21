@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -30,9 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -291,15 +294,21 @@ abstract class BaseActivity : ComponentActivity() {
                                 .blur(radius = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) blurRadius.dp else 0.dp)
                         ) { content() }
 
-                        // 드로어 입력 가드 오버레이: 애니메이션/그레이스 타임 동안 포인터 이벤트 소비
+                        // 드로어 입력 가드 오버레이: 애니메이션/그레이스 타임 동안 모든 터치 이벤트 소비(View 레벨)
                         if (drawerInputGuardActive) {
-                            Box(
+                            AndroidView(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .clickable(
-                                        indication = null,
-                                        interactionSource = remember { MutableInteractionSource() }
-                                    ) { /* consume clicks */ }
+                                    // 접근성 포커스가 배경으로 이동하지 않도록 semantics 차단
+                                    .clearAndSetSemantics { },
+                                factory = { context ->
+                                    android.view.View(context).apply {
+                                        isClickable = true
+                                        isFocusable = true
+                                        // 모든 MotionEvent 소비
+                                        setOnTouchListener { _, _ -> true }
+                                    }
+                                }
                             )
                         }
                     }

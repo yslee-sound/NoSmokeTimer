@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 // 앱 테마
 import com.sweetapps.nosmoketimer.core.ui.theme.AlcoholicTimerTheme
+import androidx.compose.ui.window.DialogProperties
 
 /**
  * 앱 업데이트 다이얼로그
@@ -40,7 +41,11 @@ fun AppUpdateDialog(
             if (canDismiss) {
                 onDismiss()
             }
-        }
+        },
+        properties = DialogProperties(
+            dismissOnBackPress = canDismiss,
+            dismissOnClickOutside = canDismiss
+        )
     ) {
         Card(
             modifier = Modifier

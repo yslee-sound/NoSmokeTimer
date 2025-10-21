@@ -7,12 +7,15 @@
 ### Added
 - (예정) Crashlytics / Analytics 도입
 - (예정) 날짜/통계 계산 단위 테스트 확대
+- 문서: `docs/MODAL_BARRIER_GUIDE.md` 추가(드로어/다이얼로그 "완전한 모달 배리어" 가이드 및 QA 체크리스트)
 
 ### Changed
 - (예정) 접근성 개선 (터치 타겟/콘트라스트)
+- 다이얼로그 정책: `AppUpdateDialog`에 `DialogProperties(dismissOnBackPress, dismissOnClickOutside)`를 `canDismiss`와 동기화하여 명시화
 
 ### Fixed
 - 상세 화면: 기록 삭제가 되지 않던 버그(JSON 키 불일치 start_time/end_time vs startTime/endTime) 수정
+- 드로어 배경 상호작용 누수: `BaseActivity`에 입력 가드 오버레이(pointerInput로 모든 포인터 이벤트 소비 + clearAndSetSemantics) 적용, 닫힘 직후 200ms 그레이스 포함
 - (예정) 통계 경계 케이스 보정
 
 ## [1.0.1] - 2025-10-21

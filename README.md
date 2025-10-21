@@ -103,6 +103,7 @@ gradlew.bat clean :app:bundleRelease
 - MVP 초간단 릴리스 체크리스트 (1인 개발용): [docs/MVP_RELEASE_CHECKLIST.md](./docs/MVP_RELEASE_CHECKLIST.md)
 - 개인정보 처리방침: [docs/PRIVACY_POLICY.md](./docs/PRIVACY_POLICY.md)
 - 스토어 메타데이터 템플릿: [docs/PLAY_STORE_METADATA_TEMPLATE.md](./docs/PLAY_STORE_METADATA_TEMPLATE.md)
+- 모달 배리어 가이드(드로어/다이얼로그 입력 차단): [docs/MODAL_BARRIER_GUIDE.md](./docs/MODAL_BARRIER_GUIDE.md)
 - 변경 이력: [CHANGELOG.md](./CHANGELOG.md)
 
 ## 디렉터리 구조 개요
