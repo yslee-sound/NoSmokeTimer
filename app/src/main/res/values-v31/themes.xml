@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+ 시스템 SplashScreen: VectorDrawable 직접 지정 -->
+    <!-- Android 12+에서도 layer-list 스플래시를 사용해 시스템 원형 컨테이너/마스크 완전 제거 -->
     <style name="Theme.NoSmokeTimer.Splash" parent="Theme.SplashScreen">
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
         <item name="windowSplashScreenBackground">@android:color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_foreground_288</item>
-        <!-- DO NOT set android:windowSplashScreenIconBackgroundColor to avoid circular container -->
+        <!-- animatedIcon은 지정하지 않음 -->
         <item name="postSplashScreenTheme">@style/Theme.NoSmokeTimer</item>
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>

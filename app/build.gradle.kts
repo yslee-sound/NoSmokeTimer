@@ -202,5 +202,29 @@ tasks.register("checkReleaseKeystore") {
     }
 }
 
-// (단순화) designTokenCheck 커스텀 태스크 제거.
-// 필요 시 별도 스크립트나 독립 Gradle 플러그인/CI 스텝으로 수행 권장
+// v31 스플래시 정책 검증 태스크: Fallback B(레이어리스트 강제) 준수 여부 점검
+tasks.register("checkSplashPolicy") {
+    group = "verification"
+    description = "Verifies Android 12+ splash policy: Fallback B (layer-list only) with no icon background color"
+    // 구성 캐시 친화 아님(파일 I/O) — 진단용 태스크로 예외 처리 간단히 유지
+    notCompatibleWithConfigurationCache("diagnostic helper task")
+    doLast {
+        val f = file("src/main/res/values-v31/themes.xml")
+        if (!f.exists()) {
+            println("[checkSplashPolicy] values-v31/themes.xml not found — SKIP")
+            return@doLast
+        }
+        val text = f.readText()
+        val usesLayerList = text.contains("android:windowBackground\">@drawable/splash_screen")
+        val hasAnimatedIcon = text.contains("windowSplashScreenAnimatedIcon")
+        val hasIconBgColor = text.contains("windowSplashScreenIconBackgroundColor")
+
+        println("[checkSplashPolicy] usesLayerList=$usesLayerList, hasAnimatedIcon=$hasAnimatedIcon, hasIconBgColor=$hasIconBgColor")
+        if (usesLayerList && !hasAnimatedIcon && !hasIconBgColor) {
+            println("[checkSplashPolicy] PASS: Fallback B is active; ring/mask path disabled for 31+.")
+        } else {
+            println("[checkSplashPolicy] FAIL: Policy drift detected. Expected: windowBackground=@drawable/splash_screen, no animatedIcon, no IconBackgroundColor.")
+            throw GradleException("Splash policy check failed for 31+ (Fallback B not active).")
+        }
+    }
+}

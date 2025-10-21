@@ -1,11 +1,15 @@
 # 스플래시 + 런처 아이콘 — 단일 표준 프롬프트(프로젝트 적용본)
 
 > 문서 버전
-> - 버전: v1.1.0
-> - 최근 업데이트: 2025-10-20
-> - 변경 요약: Pre-Android 12(API 30-)에서 installSplashScreen(compat) 전역 호출 금지 정책을 명시하고, 런타임 규칙/트러블슈팅/체크리스트를 해당 정책과 일치하도록 업데이트
+> - 버전: v1.2.0
+> - 최근 업데이트: 2025-10-21
+> - 변경 요약: Pixel 7 Pro 등 일부 기기에서 스플래시 아이콘에 원형 테두리가 나타나는 이슈의 근본 원인(31+에서 Adaptive 아이콘 폴백/시스템 컨테이너)을 문서화하고, Android 12+(API 31+)에서 시스템 컨테이너를 완전히 우회하는 Fallback 정책(B: layer-list 강제)을 추가. "현재 적용 상태"를 Fallback B로 업데이트.
 >
 > 변경 이력(Changelog)
+> - v1.2.0 (2025-10-21)
+>   - 31+ 스플래시 Fallback B(시스템 컨테이너 완전 우회: layer-list windowBackground 강제) 추가
+>   - 원형 테두리(링) 근본 원인/진단 절차/해결책(Adaptive 아이콘 폴백 방지, Vector 파싱 실패 대비) 문서화
+>   - 현재 저장소 적용 상태를 Fallback B로 갱신
 > - v1.1.0 (2025-10-20)
 >   - API 30-에서 installSplashScreen 미사용을 명문화(비런처 화면 compat 인플레이트로 인한 InflateException 재발 방지)
 >   - 공통 런타임 규칙, 내부 네비게이션, 트러블슈팅, 체크리스트 갱신
@@ -29,11 +33,11 @@
 - 동일 베이스를 공유하는 여러 앱/모듈에 “템플릿 변수”만 바꿔 재사용 가능
 
 핵심 요약
-- 31+: Theme.SplashScreen을 부모로 사용, `windowSplashScreenIconBackgroundColor` 미설정(원형 컨테이너 방지), AnimatedIcon은 Vector/PNG/WEBP만
-- 30-: 스플래시는 layer-list로 흰 배경 + 중앙 288dp 전용 벡터를 직접 그림, 메인 테마는 흰 배경만
-- 런처 전경 인셋: 18dp(표준), 스플래시 전용 리소스와 분리
-- 최소 표시시간 800ms, 31+ 퇴장 애니메이션 220ms
-- 중요: API 30-에서는 installSplashScreen(compat) 호출을 전역에서 사용하지 않음. 스플래시는 테마 layer-list로만 표시(비런처 화면에서 compat 뷰 인플레이트로 인한 크래시 방지)
+- 31+: Theme.SplashScreen을 부모로 사용, `windowSplashScreenIconBackgroundColor` 미설정(원형 컨테이너 방지), AnimatedIcon은 Vector/PNG/WEBP만 사용. 만약 특정 기기에서 링(원형 테두리)이 관찰되면 Fallback B(아래)로 전환하여 31+에서도 layer-list windowBackground만 사용해 시스템 컨테이너를 완전히 우회.
+- 30-: 스플래시는 layer-list로 흰 배경 + 중앙 288dp 전용 벡터를 직접 그림, 메인 테마는 흰 배경만.
+- 런처 전경 인셋: 18dp(표준), 스플래시 전용 리소스와 분리.
+- 최소 표시시간 800ms, 31+ 퇴장 애니메이션 220ms.
+- 중요: API 30-에서는 installSplashScreen(compat) 전역 호출 금지. 스플래시는 테마 layer-list로만 표시(비런처 화면에서 compat 뷰 인플레이트로 인한 크래시 방지)
 
 ---
 
@@ -55,11 +59,17 @@
 
 [정책]
 1) Android 12+(API 31+) 스플래시
-   - values-v31/themes.xml의 스플래시 테마 부모는 Theme.SplashScreen을 사용.
-   - windowSplashScreenAnimatedIcon=@drawable/${DRAWABLE_SPLASH_LARGE} (Vector/PNG/WEBP만; InsetDrawable 금지)
-   - windowSplashScreenBackground=@android:color/white
-   - postSplashScreenTheme=@style/${THEME_BASE}
-   - android:windowSplashScreenIconBackgroundColor 는 "설정하지 않는다"(중요)
+   - 기본 구성(A):
+     - values-v31/themes.xml의 스플래시 테마 부모는 Theme.SplashScreen을 사용.
+     - windowSplashScreenAnimatedIcon=@drawable/${DRAWABLE_SPLASH_LARGE} (Vector/PNG/WEBP만; InsetDrawable 금지)
+     - windowSplashScreenBackground=@android:color/white
+     - postSplashScreenTheme=@style/${THEME_BASE}
+     - android:windowSplashScreenIconBackgroundColor 는 "설정하지 않는다"(중요)
+   - Fallback B(문제 기기 우회):
+     - 시스템 컨테이너/마스크를 완전히 배제하기 위해, 31+에서도 animatedIcon을 지정하지 않고 layer-list만 사용
+     - values-v31/themes.xml: `<item name="android:windowBackground">@drawable/${DRAWABLE_SPLASH_LAYER}</item>`로 고정
+     - windowSplashScreenBackground=@android:color/white 유지, animatedIcon 미지정
+     - 효과: 시스템 원형 컨테이너 경로를 완전히 우회(링/마스크 제거). 아이콘 크기/이미지 변경 없음
 
 2) Android 11-(API 30-) 스플래시
    - 메인 테마(android:windowBackground)는 항상 @android:color/white (잔상 방지)
@@ -105,14 +115,14 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 ---
 
 ## 2) 본 저장소의 현재 적용 상태(최신)
-- 31+ 스플래시 테마: Theme.SplashScreen 부모 사용, 원형 배경 속성 미설정, AnimatedIcon은 288dp Vector(`@drawable/splash_foreground_288`)
+- 31+ 스플래시 테마: Fallback B 적용 — Theme.SplashScreen 부모 사용, animatedIcon 미지정, layer-list 배경(@drawable/splash_screen)만 사용하여 시스템 원형 컨테이너 경로 완전 우회
   - 파일: `app/src/main/res/values-v31/themes.xml`
 - 30- 스플래시 테마: layer-list 배경(@drawable/splash_screen)으로 중앙 아이콘 표시, 메인 테마는 흰 배경
   - 파일: `values/`, `values-v23/`, `values-v29/`의 `Theme.NoSmokeTimer.Splash`
 - Pre-12 중앙 아이콘: 288dp 전용 벡터 사용
   - 파일: `drawable/splash_app_icon.xml` → 내부에 `@drawable/splash_foreground_288`
   - 파일: `drawable/splash_foreground_288.xml` (크기: 288dp)
-- 런처 아이콘 전경: 18dp 세이프존 기준으로 설계된 전경 벡터(`drawable-anydpi-v21/ic_launcher_foreground.xml`, `drawable-anydpi-v26/ic_launcher_foreground.xml`)
+- 런처 아이콘 전경: 18dp 세이프존 기준(전경 벡터), 모노크롬/배경 유지
 - 공통 런타임 규칙: (31+) 최소 800ms 보장 + 220ms 퇴장 애니메이션, (30-) BaseActivity에서는 installSplashScreen 미사용
   - 파일: `core/ui/BaseActivity.kt`
 - Start 화면 워터마크(배경 장식): 공용 스크린의 backgroundDecoration 슬롯을 사용, Vector를 직접 그려 Compose 충돌 회피
@@ -122,7 +132,17 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 
 ## 3) 반복 이슈의 근본 원인과 회피법
 - InsetDrawable 사용 금지(Compose): painterResource 대상으론 Vector/PNG/WEBP만 허용 → 워터마크/장식은 Vector 사용
-- 원형 테두리(31+): Theme.SplashScreen 사용 시 `?windowSplashScreenIconBackgroundColor`가 개입될 수 있으므로 해당 속성 미설정
+- 원형 테두리(링) — 근본 원인:
+  - 31+에서 스플래시 AnimatedIcon 벡터가 런타임 파싱 실패 시, 시스템이 Adaptive 런처 아이콘으로 폴백하면서 아이콘 배경 컨테이너(원형 마스크)가 개입될 수 있음
+  - 또는 `windowSplashScreenIconBackgroundColor`를 설정하면 시스템 컨테이너가 강제로 생성되어 링처럼 보임
+- 링 해결 절차(권장 순서):
+  1) 31+ 정책 A 구성 확인: AnimatedIcon은 Vector/PNG/WEBP(36/31 호환), IconBackgroundColor 미설정
+  2) 벡터 참조 리소스 검증: 색상(@color/...) 등 모든 참조가 values에 존재, API 제한 기능 미사용, pathData 유효
+  3) InsetDrawable·Adaptive 아이콘 참조 금지 확인: `@drawable/splash_foreground_288`은 순수 Vector여야 함
+  4) 빌드 산출물 점검: packaged/merged values에 windowSplashScreen 항목이 의도대로 반영되었는지 확인
+  5) 리소스 퀄리파이어 충돌 점검: values-night-v31 등에서 스플래시 테마가 덮어써지지 않는지 확인
+  6) 캐시 초기화: 앱 삭제 후 재설치(31+ 스플래시 캐시), 필요 시 기기 재부팅
+  7) 여전히 링이 보이면 Fallback B로 전환(31+에서도 layer-list 고정) → 시스템 컨테이너/마스크 완전 차단
 - 기기간 스플래시 크기 차이: 31+는 표준(배경 없음 288dp), 30-는 앱 리소스 좌우 → Pre-12는 288dp 전용 벡터를 직접 그림
 - 런처 아이콘 과대 표시: 전경 세이프존 18dp 유지(벡터 경계/패스 또는 Inset 래퍼로 보정)
 - 잔상/겹침: 메인 테마 windowBackground 에 스플래시 레이어 사용 시 전환 후 잔상 → 메인 테마는 흰색만, 스플래시는 스플래시 테마에만 사용
@@ -131,13 +151,13 @@ D. 검증: Pixel 4a(API 30)·Pixel 7 Pro(API 36)에서 스플래시 크기 동�
 ---
 
 ## 4) 점검 체크리스트(에이전트용)
-- [ ] values*/themes.xml: 정책 반영(31+ 부모/배경, 30- layer-list, 메인 테마 흰 배경)
-- [ ] drawable/${DRAWABLE_SPLASH_ICON}.xml → ${DRAWABLE_SPLASH_LARGE} 참조
-- [ ] ${DRAWABLE_SPLASH_LARGE}.xml → width/height=288dp, path 최신
+- [ ] values*/themes.xml: 정책 반영(31+ 정책 A 또는 Fallback B 중 하나 선택/일관 적용, 30- layer-list, 메인 테마 흰 배경)
+- [ ] drawable/${DRAWABLE_SPLASH_ICON}.xml → ${DRAWABLE_SPLASH_LARGE} 참조(순수 Vector)
+- [ ] ${DRAWABLE_SPLASH_LARGE}.xml → width/height=288dp, path 최신, 참조 색상 정의 확인
 - [ ] ${LAUNCHER_FOREGROUND_FILES} → 18dp 세이프존 충족
 - [ ] BaseActivity → (31+) installSplashScreen + keepOnScreenCondition(>=800ms) + 퇴장 애니메이션 / (30-) installSplashScreen 미호출
 - [ ] assembleDebug 모듈별 성공
-- [ ] 기기 캡처: 30/36 크기 동등, 런처 과대 표시 없음
+- [ ] 기기 캡처: 30/36 크기 동등, 링/마스크 없음, 런처 과대 표시 없음
 
 ---
 
