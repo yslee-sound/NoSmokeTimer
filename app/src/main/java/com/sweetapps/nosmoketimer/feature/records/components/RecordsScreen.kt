@@ -43,6 +43,11 @@ import kotlin.math.min
 import com.sweetapps.nosmoketimer.core.ui.AppElevation
 import com.sweetapps.nosmoketimer.core.ui.AppBorder
 import com.sweetapps.nosmoketimer.R
+// 추가: 입력 차단 오버레이에 필요한 import
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.zIndex
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +69,18 @@ fun RecordsScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedDetailPeriod by remember { mutableStateOf("${currentYear}년 ${currentMonth}월") }
     var selectedWeekRange by remember { mutableStateOf<Pair<Long, Long>?>(null) }
+
+    // 추가: 기간 전환 직후 짧게 입력 차단하여 연타로 인한 깜빡임/중복 상태 전환 방지
+    var blockInput by remember { mutableStateOf(false) }
+    LaunchedEffect(selectedPeriod) {
+        // 바텀시트가 열려 있을 땐 별도의 차단이 필요 없음(시트가 배경 입력을 자체 차단)
+        if (!showBottomSheet) {
+            blockInput = true
+            // 전환 애니메이션 및 재구성 안정화에 충분한 짧은 시간(약 240ms)
+            delay(240)
+            blockInput = false
+        }
+    }
 
     val loadRecords = {
         isLoading = true
@@ -307,6 +324,19 @@ fun RecordsScreen(
                         }
                     }
                 }
+            }
+
+            // 추가: 상단 입력 차단 오버레이 (투명, 클릭 흡수)
+            if (blockInput && !showBottomSheet) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(1f) // 최상단에 배치
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { /* no-op: 클릭만 흡수 */ }
+                )
             }
         }
     }
