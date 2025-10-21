@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,10 +53,21 @@ import androidx.compose.ui.res.painterResource
 import android.os.Build
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.res.stringResource
+import com.sweetapps.nosmoketimer.core.util.UpdateVersionMapper
+import android.content.pm.ApplicationInfo
 import android.graphics.Color as AndroidColor
 
 class StartActivity : BaseActivity() {
     private lateinit var appUpdateManager: AppUpdateManager
+
+    private fun isDebugBuild(): Boolean {
+        return (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,11 +92,19 @@ class StartActivity : BaseActivity() {
         // In-App Update 초기화
         appUpdateManager = AppUpdateManager(this)
 
+        val debugBuild = isDebugBuild()
+        // 데모 인텐트 플래그 (DEBUG에서만 유효)
+        val demoIntentActive = debugBuild && (intent?.getBooleanExtra("demo_update_ui", false) == true)
+
         setContent {
             // 첫 실행 화면에서는 edge-to-edge 비활성화하여 상태바를 OS가 분리 렌더링
             BaseScreen(applyBottomInsets = false, applySystemBars = false) {
                 Box(Modifier.fillMaxSize()) {
-                    StartScreenWithUpdate(appUpdateManager)
+                    StartScreenWithUpdate(
+                        appUpdateManager = appUpdateManager,
+                        demoIntentActive = demoIntentActive,
+                        isDebug = debugBuild
+                    )
                 }
             }
         }
@@ -100,27 +120,57 @@ class StartActivity : BaseActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StartScreenWithUpdate(appUpdateManager: AppUpdateManager) {
+fun StartScreenWithUpdate(appUpdateManager: AppUpdateManager, demoIntentActive: Boolean, isDebug: Boolean) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 업데이트 다이얼로그 상태
+    // 업데이트 다이얼로그 및 체크 상태
     var showUpdateDialog by remember { mutableStateOf(false) }
     var updateInfo by remember { mutableStateOf<com.google.android.play.core.appupdate.AppUpdateInfo?>(null) }
     var availableVersionName by remember { mutableStateOf("") }
+    var isCheckingUpdate by remember { mutableStateOf(false) }
+    var showOverlay by remember { mutableStateOf(false) }
 
-    // 앱 시작 시 업데이트 확인
-    LaunchedEffect(Unit) {
-        scope.launch {
+    // 데모 모드 트리거 상태(롱프레스)
+    var demoLongPressTriggered by remember { mutableStateOf(false) }
+    val demoActive = isDebug && (demoIntentActive || demoLongPressTriggered)
+
+    // 앱 시작 시 업데이트 확인 (데모 모드면 실제 확인 대신 시연)
+    LaunchedEffect(demoActive) {
+        if (demoActive) {
+            // 데모: 오버레이 600ms 노출 후 가짜 버전으로 다이얼로그 표시
+            isCheckingUpdate = true
+            showOverlay = false
+            delay(300)
+            showOverlay = true
+            delay(300)
+            val fakeCode = 2025101001
+            availableVersionName = UpdateVersionMapper.toVersionName(fakeCode) ?: fakeCode.toString()
+            showUpdateDialog = true
+            isCheckingUpdate = false
+            showOverlay = false
+        } else {
+            // 실제 업데이트 확인 (24시간 정책 준수)
+            isCheckingUpdate = true
+            showOverlay = false
+            scope.launch {
+                // 300ms 후에도 진행 중이면 오버레이 노출
+                delay(300)
+                if (isCheckingUpdate && !showUpdateDialog) showOverlay = true
+            }
             appUpdateManager.checkForUpdate(
-                forceCheck = true,
+                forceCheck = false,
                 onUpdateAvailable = { info ->
                     updateInfo = info
-                    availableVersionName = info.availableVersionCode().toString()
+                    val code = info.availableVersionCode()
+                    availableVersionName = UpdateVersionMapper.toVersionName(code) ?: code.toString()
                     showUpdateDialog = true
+                    isCheckingUpdate = false
+                    showOverlay = false
                 },
                 onNoUpdate = {
-                    // 업데이트 없음
+                    isCheckingUpdate = false
+                    showOverlay = false
                 }
             )
         }
@@ -143,13 +193,18 @@ fun StartScreenWithUpdate(appUpdateManager: AppUpdateManager) {
     }
     // 화면 소멸 시 리스너 정리
     DisposableEffect(Unit) {
-        onDispose {
-            appUpdateManager.unregisterInstallStateListener()
-        }
+        onDispose { appUpdateManager.unregisterInstallStateListener() }
     }
 
+    val blockAutoNavigation = isCheckingUpdate || showUpdateDialog
+
     Box(modifier = Modifier.fillMaxSize()) {
-        StartScreen()
+        StartScreen(
+            blockAutoNavigation = blockAutoNavigation,
+            onTitleLongPress = {
+                if (isDebug) demoLongPressTriggered = true
+            }
+        )
 
         // 업데이트 다이얼로그
         AppUpdateDialog(
@@ -157,12 +212,21 @@ fun StartScreenWithUpdate(appUpdateManager: AppUpdateManager) {
             versionName = availableVersionName,
             updateMessage = "새로운 기능과 개선사항이 포함되어 있습니다.",
             onUpdateClick = {
-                updateInfo?.let { info ->
-                    val immediateAllowed = info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
-                    if (appUpdateManager.isMaxPostponeReached() && immediateAllowed) {
-                        appUpdateManager.startImmediateUpdate(info)
-                    } else {
-                        appUpdateManager.startFlexibleUpdate(info)
+                if (demoActive) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "데모: 실제 업데이트는 시작하지 않습니다.",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                } else {
+                    updateInfo?.let { info ->
+                        val immediateAllowed = info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
+                        if (appUpdateManager.isMaxPostponeReached() && immediateAllowed) {
+                            appUpdateManager.startImmediateUpdate(info)
+                        } else {
+                            appUpdateManager.startFlexibleUpdate(info)
+                        }
                     }
                 }
                 showUpdateDialog = false
@@ -171,7 +235,7 @@ fun StartScreenWithUpdate(appUpdateManager: AppUpdateManager) {
                 appUpdateManager.markUserPostpone()
                 showUpdateDialog = false
             },
-            canDismiss = !appUpdateManager.isMaxPostponeReached()
+            canDismiss = !appUpdateManager.isMaxPostponeReached() || demoActive
         )
 
         // 스낵바
@@ -179,18 +243,51 @@ fun StartScreenWithUpdate(appUpdateManager: AppUpdateManager) {
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+
+        // 300ms 지연 오버레이(터치 차단)
+        if (showOverlay) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .semantics { testTagsAsResourceId = true }
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { /* consume */ },
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    tonalElevation = 2.dp,
+                    shadowElevation = 4.dp,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.5.dp)
+                        Spacer(Modifier.width(12.dp))
+                        Text(text = stringResource(id = R.string.checking_update))
+                    }
+                }
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StartScreen() {
+fun StartScreen(
+    blockAutoNavigation: Boolean = false,
+    onTitleLongPress: () -> Unit = {}
+) {
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("user_settings", MODE_PRIVATE)
     val startTime = sharedPref.getLong("start_time", 0L)
     val timerCompleted = sharedPref.getBoolean("timer_completed", false)
 
-    if (startTime != 0L && !timerCompleted) {
+    if (!blockAutoNavigation && startTime != 0L && !timerCompleted) {
         LaunchedEffect(Unit) {
             context.startActivity(Intent(context, RunActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -232,7 +329,15 @@ fun StartScreen() {
                         text = "목표 기간 설정",
                         style = MaterialTheme.typography.titleLarge,
                         color = colorResource(id = R.color.color_title_primary),
-                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 24.dp)
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(bottom = 24.dp)
+                            .combinedClickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {},
+                                onLongClick = onTitleLongPress
+                            )
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

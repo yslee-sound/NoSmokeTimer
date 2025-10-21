@@ -65,8 +65,8 @@ abstract class BaseActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // Edge-to-Edge: 시스템 윈도우 적합 해제(전역 한 번)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        // Android 12+만 플랫폼 스플래시 사용; Pre-31은 테마 windowBackground 방식 유지
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        // Android 12+ 플랫폼 스플래시는 런처 액티비티에서만 설치
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && this is StartActivity) {
             val splashScreen: SplashScreen = installSplashScreen()
             val start = System.currentTimeMillis()
             splashScreen.setKeepOnScreenCondition {

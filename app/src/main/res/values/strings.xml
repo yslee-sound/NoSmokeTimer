@@ -80,4 +80,7 @@
 
     <string name="action_copy">복사</string>
     <string name="toast_copied">주소를 복사했습니다.</string>
+
+    <!-- In-App Update overlay message -->
+    <string name="checking_update">업데이트 확인 중…</string>
 </resources>

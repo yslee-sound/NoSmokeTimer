@@ -2,6 +2,7 @@ package com.sweetapps.nosmoketimer.core.util
 
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -43,6 +44,16 @@ class AppUpdateManager(private val activity: ComponentActivity) {
         private const val MAX_POSTPONE_COUNT = 3 // 최대 3번까지 연기 가능
         private const val REQUEST_CODE_FLEXIBLE_UPDATE = 1001
         private const val REQUEST_CODE_IMMEDIATE_UPDATE = 1002
+        private const val PLAY_STORE_PACKAGE = "com.android.vending"
+    }
+
+    private fun isPlayStoreInstalled(): Boolean {
+        return try {
+            activity.packageManager.getPackageInfo(PLAY_STORE_PACKAGE, PackageManager.GET_ACTIVITIES)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     /**
@@ -86,6 +97,13 @@ class AppUpdateManager(private val activity: ComponentActivity) {
             // 시간 제한 확인 (24시간마다 1회)
             if (!forceCheck && !shouldCheckForUpdate()) {
                 Log.d(TAG, "업데이트 확인 시간이 아직 안 됨")
+                onNoUpdate()
+                return
+            }
+
+            // Play 스토어 미설치 기기 가드
+            if (!isPlayStoreInstalled()) {
+                Log.w(TAG, "Play 스토어 미설치 기기: 업데이트 확인 건너뜀")
                 onNoUpdate()
                 return
             }
